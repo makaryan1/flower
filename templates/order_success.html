@@ -1,0 +1,19 @@
+
+{% extends "base.html" %}
+
+{% block title %}Заказ оформлен - Цветочный Магазин{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+    <h1>Заказ успешно оформлен!</h1>
+    <p class="lead">Номер заказа: #{{ order.id }}</p>
+    <p>Сумма заказа: <strong class="text-success">{{ order.total_amount }}₽</strong></p>
+    <p>Мы свяжемся с вами в ближайшее время для подтверждения заказа</p>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('my_orders') }}" class="btn btn-success me-2">Мои заказы</a>
+        <a href="{{ url_for('catalog') }}" class="btn btn-outline-success">Продолжить покупки</a>
+    </div>
+</div>
+{% endblock %}

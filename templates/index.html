@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section bg-success text-white text-center py-5 mb-5 rounded">
+    <div class="container">
+        <h1 class="display-4"><i class="fas fa-flower"></i> Добро пожаловать в FlowerShop</h1>
+        <p class="lead">Свежие цветы и букеты с доставкой по городу</p>
+        <a href="{{ url_for('catalog') }}" class="btn btn-light btn-lg">Посмотреть каталог</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-center mb-4">Популярные товары</h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <img src="{{ product.image_url or 'https://via.placeholder.com/300x300' }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.description[:50] }}...</p>
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 text-success">{{ product.price }}₽</span>
+                        <small class="text-muted">В наличии: {{ product.stock }}</small>
+                    </div>
+                    <div class="mt-2">
+                        <a href="{{ url_for('product_detail', id=product.id) }}" class="btn btn-outline-success btn-sm">Подробнее</a>
+                        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success btn-sm">В корзину</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 text-center">
+        <i class="fas fa-truck fa-3x text-success mb-3"></i>
+        <h4>Быстрая доставка</h4>
+        <p>Доставляем в течение 2-4 часов</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <i class="fas fa-leaf fa-3x text-success mb-3"></i>
+        <h4>Свежие цветы</h4>
+        <p>Только самые свежие букеты</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <i class="fas fa-heart fa-3x text-success mb-3"></i>
+        <h4>С любовью</h4>
+        <p>Каждый букет создан с душой</p>
+    </div>
+</div>
+{% endblock %}

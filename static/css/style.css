@@ -1,0 +1,147 @@
+
+/* Основные стили */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card {
+    transition: transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+/* Навигация */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Корзина */
+.cart-icon {
+    position: relative;
+}
+
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+}
+
+/* Товары */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.product-image {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+}
+
+/* Админ панель */
+.admin-sidebar {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 56px);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0 !important;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Дополнительные утилиты */
+.shadow-custom {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.rounded-custom {
+    border-radius: 15px;
+}
+
+/* Форма checkout */
+.checkout-summary {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Статусы заказов */
+.status-pending {
+    background-color: #ffc107 !important;
+}
+
+.status-confirmed {
+    background-color: #17a2b8 !important;
+}
+
+.status-delivered {
+    background-color: #28a745 !important;
+}
+
+.status-cancelled {
+    background-color: #dc3545 !important;
+}

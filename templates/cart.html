@@ -1,0 +1,87 @@
+
+{% extends "base.html" %}
+
+{% block title %}Корзина - Цветочный Магазин{% endblock %}
+
+{% block content %}
+<h1>Корзина покупок</h1>
+
+{% if cart_items %}
+<div class="row">
+    <div class="col-md-8">
+        {% for item in cart_items %}
+        <div class="card mb-3">
+            <div class="row g-0">
+                <div class="col-md-3">
+                    <img src="{{ item.product.image_url or 'https://via.placeholder.com/150x150' }}" class="img-fluid rounded-start h-100" alt="{{ item.product.name }}" style="object-fit: cover;">
+                </div>
+                <div class="col-md-9">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.product.name }}</h5>
+                        <p class="card-text">{{ item.product.description }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form method="POST" action="{{ url_for('update_cart') }}" class="d-flex align-items-center">
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <label for="quantity" class="form-label me-2">Количество:</label>
+                                    <input type="number" class="form-control me-2" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" style="width: 80px;">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Обновить</button>
+                                </form>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <p class="card-text">
+                                    <small class="text-muted">{{ item.product.price }}₽ × {{ item.quantity }}</small><br>
+                                    <strong class="text-success h5">{{ item.total }}₽</strong>
+                                </p>
+                                <a href="{{ url_for('remove_from_cart', product_id=item.product.id) }}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Итого</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <span>Товары:</span>
+                    <span>{{ total }}₽</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Доставка:</span>
+                    <span>Бесплатно</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Общая сумма:</strong>
+                    <strong class="text-success">{{ total }}₽</strong>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg">Оформить заказ</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-success btn-lg">Войти для оформления</a>
+                    {% endif %}
+                    <a href="{{ url_for('catalog') }}" class="btn btn-outline-success">Продолжить покупки</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center">
+    <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+    <h3>Ваша корзина пуста</h3>
+    <p class="lead">Добавьте товары из каталога</p>
+    <a href="{{ url_for('catalog') }}" class="btn btn-success btn-lg">Перейти в каталог</a>
+</div>
+{% endif %}
+{% endblock %}
