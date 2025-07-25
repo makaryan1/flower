@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -400,15 +399,15 @@ def product_detail(id):
 def add_to_cart(product_id):
     if 'cart' not in session:
         session['cart'] = {}
-    
+
     cart = session['cart']
     product_id_str = str(product_id)
-    
+
     if product_id_str in cart:
         cart[product_id_str] += 1
     else:
         cart[product_id_str] = 1
-    
+
     session['cart'] = cart
     flash(get_text('product_added'), 'success')
     return redirect(url_for('catalog'))
@@ -417,11 +416,11 @@ def add_to_cart(product_id):
 def cart():
     if 'cart' not in session or not session['cart']:
         return render_template('cart.html', cart_items=[], total=0)
-    
+
     cart = session['cart']
     cart_items = []
     total = 0
-    
+
     for product_id, quantity in cart.items():
         product = Product.query.get(int(product_id))
         if product:
@@ -432,21 +431,21 @@ def cart():
                 'total': item_total
             })
             total += item_total
-    
+
     return render_template('cart.html', cart_items=cart_items, total=total)
 
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
     product_id = request.form.get('product_id')
     quantity = int(request.form.get('quantity'))
-    
+
     if 'cart' in session:
         if quantity > 0:
             session['cart'][product_id] = quantity
         else:
             session['cart'].pop(product_id, None)
         session.modified = True
-    
+
     return redirect(url_for('cart'))
 
 @app.route('/remove_from_cart/<int:product_id>')
@@ -470,18 +469,18 @@ def checkout():
     if 'cart' not in session or not session['cart']:
         flash('Ваша корзина пуста!', 'warning')
         return redirect(url_for('cart'))
-    
+
     form = CheckoutForm()
     if form.validate_on_submit():
         # Создаем заказ
         total = 0
         cart = session['cart']
-        
+
         for product_id, quantity in cart.items():
             product = Product.query.get(int(product_id))
             if product:
                 total += product.price * quantity
-        
+
         order = Order(
             user_id=current_user.id,
             total_amount=total,
@@ -491,7 +490,7 @@ def checkout():
         )
         db.session.add(order)
         db.session.flush()
-        
+
         # Добавляем товары в заказ
         for product_id, quantity in cart.items():
             product = Product.query.get(int(product_id))
@@ -505,12 +504,12 @@ def checkout():
                 db.session.add(order_item)
                 # Уменьшаем количество на складе
                 product.stock -= quantity
-        
+
         db.session.commit()
         session.pop('cart', None)
         flash('Заказ успешно оформлен!', 'success')
         return redirect(url_for('order_success', order_id=order.id))
-    
+
     return render_template('checkout.html', form=form)
 
 @app.route('/order_success/<int:order_id>')
@@ -545,7 +544,7 @@ def register():
     if form.validate_on_submit():
         existing_user = User.query.filter_by(username=form.username.data).first()
         existing_email = User.query.filter_by(email=form.email.data).first()
-        
+
         if existing_user:
             flash(get_text('username_exists') if get_text('username_exists') != 'username_exists' else 'Пользователь с таким именем уже существует!', 'error')
         elif existing_email:
@@ -576,7 +575,7 @@ def admin():
     if not current_user.is_admin:
         flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
-    
+
     products = Product.query.all()
     orders = Order.query.order_by(Order.created_at.desc()).limit(10).all()
     return render_template('admin/dashboard.html', products=products, orders=orders)
@@ -587,7 +586,7 @@ def admin_products():
     if not current_user.is_admin:
         flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
-    
+
     products = Product.query.all()
     return render_template('admin/products.html', products=products)
 
@@ -597,7 +596,7 @@ def admin_add_product():
     if not current_user.is_admin:
         flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
-    
+
     form = ProductForm()
     if form.validate_on_submit():
         product = Product(
@@ -612,7 +611,7 @@ def admin_add_product():
         db.session.commit()
         flash(get_text('product_added') if get_text('product_added') != 'product_added' else 'Товар добавлен!', 'success')
         return redirect(url_for('admin_products'))
-    
+
     return render_template('admin/product_form.html', form=form, title=get_text('add_product') if get_text('add_product') != 'add_product' else 'Добавить товар')
 
 @app.route('/admin/product/<int:id>/edit', methods=['GET', 'POST'])
@@ -621,10 +620,10 @@ def admin_edit_product(id):
     if not current_user.is_admin:
         flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
-    
-    product = Product.query.get_or_404(id)
+
+    product = db.get_or_404(Product, id)
     form = ProductForm(obj=product)
-    
+
     if form.validate_on_submit():
         product.name = form.name.data
         product.description = form.description.data
@@ -635,7 +634,7 @@ def admin_edit_product(id):
         db.session.commit()
         flash(get_text('product_updated') if get_text('product_updated') != 'product_updated' else 'Товар обновлен!', 'success')
         return redirect(url_for('admin_products'))
-    
+
     return render_template('admin/product_form.html', form=form, title=get_text('edit_product') if get_text('edit_product') != 'edit_product' else 'Редактировать товар')
 
 @app.route('/admin/product/<int:id>/delete')
@@ -644,8 +643,8 @@ def admin_delete_product(id):
     if not current_user.is_admin:
         flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
-    
-    product = Product.query.get_or_404(id)
+
+    product = db.get_or_404(Product, id)
     db.session.delete(product)
     db.session.commit()
     flash(get_text('product_deleted') if get_text('product_deleted') != 'product_deleted' else 'Товар удален!', 'success')
@@ -657,7 +656,7 @@ def admin_orders():
     if not current_user.is_admin:
         flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
-    
+
     orders = Order.query.order_by(Order.created_at.desc()).all()
     return render_template('admin/orders.html', orders=orders)
 
@@ -667,15 +666,15 @@ def admin_update_order_status(id):
     if not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
-    order = Order.query.get_or_404(id)
+
+    order = db.get_or_404(Order, id)
     status = request.form.get('status')
     courier_id = request.form.get('courier_id')
-    
+
     order.status = status
     if courier_id:
         order.courier_id = int(courier_id) if courier_id != '' else None
-    
+
     db.session.commit()
     flash(get_text('order_updated') if get_text('order_updated') != 'order_updated' else 'Заказ обновлен!', 'success')
     return redirect(url_for('admin_orders'))
@@ -687,7 +686,7 @@ def courier_dashboard():
     if not current_user.is_courier and not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     my_orders = Order.query.filter_by(courier_id=current_user.id).order_by(Order.created_at.desc()).all()
     return render_template('courier/dashboard.html', orders=my_orders)
 
@@ -697,12 +696,12 @@ def courier_update_status(id):
     if not current_user.is_courier and not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
-    order = Order.query.get_or_404(id)
+
+    order = db.get_or_404(Order, id)
     if order.courier_id != current_user.id and not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('courier_dashboard'))
-    
+
     status = request.form.get('status')
     order.status = status
     db.session.commit()
@@ -716,7 +715,7 @@ def admin_users():
     if not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     users = User.query.all()
     return render_template('admin/users.html', users=users)
 
@@ -726,17 +725,17 @@ def admin_toggle_user_role(id):
     if not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     user = User.query.get_or_404(id)
     role = request.form.get('role')
-    
+
     if role == 'courier':
         user.is_courier = not user.is_courier
         message = get_text('courier_assigned') if user.is_courier else get_text('courier_removed') if get_text('courier_removed') != 'courier_removed' else 'Курьер удален'
     elif role == 'admin':
         user.is_admin = not user.is_admin
         message = get_text('admin_assigned') if get_text('admin_assigned') != 'admin_assigned' else 'Админ назначен' if user.is_admin else get_text('admin_removed') if get_text('admin_removed') != 'admin_removed' else 'Админ удален'
-    
+
     db.session.commit()
     flash(message, 'success')
     return redirect(url_for('admin_users'))
@@ -748,18 +747,18 @@ def admin_statistics():
     if not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     total_orders = Order.query.count()
     total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
     total_products = Product.query.count()
     total_users = User.query.count()
-    
+
     # Orders by district
     district_stats = db.session.query(Order.district, db.func.count(Order.id)).group_by(Order.district).all()
-    
+
     # Orders by status
     status_stats = db.session.query(Order.status, db.func.count(Order.id)).group_by(Order.status).all()
-    
+
     return render_template('admin/statistics.html', 
                          total_orders=total_orders,
                          total_revenue=total_revenue,
@@ -781,7 +780,7 @@ if __name__ == '__main__':
                 is_admin=True
             )
             db.session.add(admin)
-            
+
         # Создаем курьера по умолчанию
         courier = User.query.filter_by(username='courier').first()
         if not courier:
@@ -792,9 +791,9 @@ if __name__ == '__main__':
                 is_courier=True
             )
             db.session.add(courier)
-            
+
         db.session.commit()
-            
+
         # Добавляем товары по умолчанию
         if Product.query.count() == 0:
             sample_products = [
@@ -807,5 +806,5 @@ if __name__ == '__main__':
             for product in sample_products:
                 db.session.add(product)
             db.session.commit()
-    
+
     app.run(host='0.0.0.0', port=5000, debug=True)
