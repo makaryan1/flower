@@ -1,0 +1,108 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ get_text('statistics') }} - {{ get_text('admin_panel') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-chart-bar me-2"></i>{{ get_text('statistics') }}</h1>
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>{{ get_text('back_to_admin') if get_text('back_to_admin') != 'back_to_admin' else 'Назад к админке' }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-primary mb-3"></i>
+                    <h3 class="text-primary">{{ total_orders }}</h3>
+                    <p class="text-muted">{{ get_text('total_orders') if get_text('total_orders') != 'total_orders' else 'Всего заказов' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-money-bill-wave fa-3x text-success mb-3"></i>
+                    <h3 class="text-success">{{ "%.2f"|format(total_revenue) }}₾</h3>
+                    <p class="text-muted">{{ get_text('total_revenue') if get_text('total_revenue') != 'total_revenue' else 'Общая выручка' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-box fa-3x text-info mb-3"></i>
+                    <h3 class="text-info">{{ total_products }}</h3>
+                    <p class="text-muted">{{ get_text('total_products') if get_text('total_products') != 'total_products' else 'Всего товаров' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                    <h3 class="text-warning">{{ total_users }}</h3>
+                    <p class="text-muted">{{ get_text('total_users') if get_text('total_users') != 'total_users' else 'Всего пользователей' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ get_text('orders_by_district') if get_text('orders_by_district') != 'orders_by_district' else 'Заказы по районам' }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if district_stats %}
+                        {% for district, count in district_stats %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>
+                                {% if district == 'center' %}Центр города
+                                {% elif district == 'rustaveli' %}Район Руставели
+                                {% elif district == 'agmashenebeli' %}Агмашенебели
+                                {% elif district == 'tabatskuri' %}Табацкури
+                                {% elif district == 'vale' %}Вале
+                                {% elif district == 'ahaltsikhe_village' %}Село Ахалциха
+                                {% else %}Другое село
+                                {% endif %}
+                            </span>
+                            <span class="badge bg-info">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">{{ get_text('no_data') if get_text('no_data') != 'no_data' else 'Нет данных' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>{{ get_text('orders_by_status') if get_text('orders_by_status') != 'orders_by_status' else 'Заказы по статусам' }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if status_stats %}
+                        {% for status, count in status_stats %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ get_text(status) }}</span>
+                            <span class="badge bg-{% if status == 'pending' %}warning{% elif status == 'confirmed' %}info{% elif status == 'shipped' %}primary{% elif status == 'delivered' %}success{% else %}secondary{% endif %}">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">{{ get_text('no_data') if get_text('no_data') != 'no_data' else 'Нет данных' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

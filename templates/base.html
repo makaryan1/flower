@@ -92,6 +92,12 @@
                                 <li><a class="dropdown-item" href="{{ url_for('my_orders') }}">
                                     <i class="fas fa-box me-2"></i>{{ get_text('my_orders') }}
                                 </a></li>
+                                {% if current_user.is_courier %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('courier_dashboard') }}">
+                                        <i class="fas fa-motorcycle me-2"></i>{{ get_text('courier_panel') }}
+                                    </a></li>
+                                {% endif %}
                                 {% if current_user.is_admin %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ url_for('admin') }}">

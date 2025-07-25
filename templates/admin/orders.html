@@ -18,7 +18,9 @@
                 <th>Адрес</th>
                 <th>Телефон</th>
                 <th>Дата</th>
-                <th>Действия</th>
+                <th>{{ get_text('district') if get_text('district') != 'district' else 'Район' }}</th>
+                <th>{{ get_text('courier') if get_text('courier') != 'courier' else 'Курьер' }}</th>
+                <th>{{ get_text('actions') if get_text('actions') != 'actions' else 'Действия' }}</th>
             </tr>
         </thead>
         <tbody>
@@ -33,24 +35,58 @@
                         {% endfor %}
                     </small>
                 </td>
-                <td>{{ order.total_amount }}₽</td>
+                <td>{{ order.total_amount }}₾</td>
                 <td>
                     <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'confirmed' %}info{% elif order.status == 'delivered' %}success{% else %}secondary{% endif %}">
-                        {{ order.status }}
+                        {{ get_text(order.status) }}
                     </span>
                 </td>
                 <td><small>{{ order.shipping_address }}</small></td>
                 <td>{{ order.phone }}</td>
                 <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
                 <td>
+                    <span class="badge bg-info">
+                        {% if order.district == 'center' %}Центр
+                        {% elif order.district == 'rustaveli' %}Руставели  
+                        {% elif order.district == 'agmashenebeli' %}Агмашенебели
+                        {% elif order.district == 'tabatskuri' %}Табацкури
+                        {% elif order.district == 'vale' %}Вале
+                        {% elif order.district == 'ahaltsikhe_village' %}Село Ахалциха
+                        {% else %}Другое село
+                        {% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if order.courier %}
+                        <span class="badge bg-success">{{ order.courier.username }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ get_text('not_assigned') if get_text('not_assigned') != 'not_assigned' else 'Не назначен' }}</span>
+                    {% endif %}
+                </td>
+                <td>
                     <form method="POST" action="{{ url_for('admin_update_order_status', id=order.id) }}" class="d-inline">
-                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>В ожидании</option>
-                            <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Подтвержден</option>
-                            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Отправлен</option>
-                            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Доставлен</option>
-                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Отменен</option>
-                        </select>
+                        <div class="row g-1">
+                            <div class="col-12">
+                                <select name="status" class="form-select form-select-sm mb-1">
+                                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>{{ get_text('pending') }}</option>
+                                    <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>{{ get_text('confirmed') }}</option>
+                                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>{{ get_text('shipped') }}</option>
+                                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>{{ get_text('delivered') }}</option>
+                                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>{{ get_text('cancelled') }}</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <select name="courier_id" class="form-select form-select-sm mb-1">
+                                    <option value="">{{ get_text('select_courier') if get_text('select_courier') != 'select_courier' else 'Выберите курьера' }}</option>
+                                    {% for courier in get_couriers() %}
+                                        <option value="{{ courier.id }}" {% if order.courier_id == courier.id %}selected{% endif %}>{{ courier.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">{{ get_text('update') if get_text('update') != 'update' else 'Обновить' }}</button>
+                            </div>
+                        </div>
                     </form>
                 </td>
             </tr>

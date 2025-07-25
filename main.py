@@ -22,8 +22,9 @@ TRANSLATIONS = {
         'logout': 'Выйти',
         'my_orders': 'Мои заказы',
         'admin_panel': 'Админ панель',
+        'courier_panel': 'Панель курьера',
         'welcome_title': 'Добро пожаловать в FlowerShop',
-        'welcome_subtitle': 'Свежие цветы и букеты с доставкой по городу',
+        'welcome_subtitle': 'Свежие цветы и букеты с доставкой по Ахалцихе',
         'view_catalog': 'Посмотреть каталог',
         'popular_products': 'Популярные товары',
         'add_to_cart': 'Добавить в корзину',
@@ -55,7 +56,41 @@ TRANSLATIONS = {
         'order_placed': 'Заказ успешно оформлен!',
         'product_added': 'Товар добавлен в корзину!',
         'contacts': 'Контакты',
-        'best_flowers': 'Лучшие цветы для ваших близких'
+        'best_flowers': 'Лучшие цветы для ваших близких',
+        'address': 'г. Ахалцихе, ул. Руставели, д. 1',
+        'newsletter': 'Подписка',
+        'newsletter_text': 'Получайте уведомления о новых поступлениях',
+        'all_rights': 'Все права защищены',
+        'cart_cleared': 'Корзина очищена!',
+        'order_not_found': 'Заказ не найден!',
+        'invalid_credentials': 'Неверное имя пользователя или пароль!',
+        'username_exists': 'Пользователь с таким именем уже существует!',
+        'email_exists': 'Пользователь с таким email уже существует!',
+        'registration_success': 'Регистрация успешна!',
+        'access_denied': 'Доступ запрещен!',
+        'product_updated': 'Товар обновлен!',
+        'product_deleted': 'Товар удален!',
+        'add_product': 'Добавить товар',
+        'edit_product': 'Редактировать товар',
+        'fast_delivery': 'Быстрая доставка',
+        'delivery_text': 'Доставляем свежие цветы в течение 2 часов по Ахалцихе',
+        'fresh_flowers': 'Свежие цветы',
+        'fresh_text': 'Все цветы доставляются прямо с плантации',
+        'pending': 'В ожидании',
+        'confirmed': 'Подтвержден',
+        'shipped': 'Отправлен',
+        'delivered': 'Доставлен',
+        'cancelled': 'Отменен',
+        'assign_courier': 'Назначить курьера',
+        'courier_assigned': 'Курьер назначен',
+        'delivery_routes': 'Маршруты доставки',
+        'my_deliveries': 'Мои доставки',
+        'statistics': 'Статистика',
+        'users_management': 'Управление пользователями',
+        'make_courier': 'Сделать курьером',
+        'remove_courier': 'Убрать курьера',
+        'make_admin': 'Сделать админом',
+        'remove_admin': 'Убрать админа'
     },
     'en': {
         'site_title': 'Flower Shop',
@@ -68,8 +103,9 @@ TRANSLATIONS = {
         'logout': 'Logout',
         'my_orders': 'My Orders',
         'admin_panel': 'Admin Panel',
+        'courier_panel': 'Courier Panel',
         'welcome_title': 'Welcome to FlowerShop',
-        'welcome_subtitle': 'Fresh flowers and bouquets with city delivery',
+        'welcome_subtitle': 'Fresh flowers and bouquets with delivery in Akhaltsikhe',
         'view_catalog': 'View Catalog',
         'popular_products': 'Popular Products',
         'add_to_cart': 'Add to Cart',
@@ -101,7 +137,41 @@ TRANSLATIONS = {
         'order_placed': 'Order placed successfully!',
         'product_added': 'Product added to cart!',
         'contacts': 'Contacts',
-        'best_flowers': 'Best flowers for your loved ones'
+        'best_flowers': 'Best flowers for your loved ones',
+        'address': 'Akhaltsikhe, Rustaveli St. 1',
+        'newsletter': 'Newsletter',
+        'newsletter_text': 'Get notifications about new arrivals',
+        'all_rights': 'All rights reserved',
+        'cart_cleared': 'Cart cleared!',
+        'order_not_found': 'Order not found!',
+        'invalid_credentials': 'Invalid username or password!',
+        'username_exists': 'User with this username already exists!',
+        'email_exists': 'User with this email already exists!',
+        'registration_success': 'Registration successful!',
+        'access_denied': 'Access denied!',
+        'product_updated': 'Product updated!',
+        'product_deleted': 'Product deleted!',
+        'add_product': 'Add Product',
+        'edit_product': 'Edit Product',
+        'fast_delivery': 'Fast Delivery',
+        'delivery_text': 'We deliver fresh flowers within 2 hours in Akhaltsikhe',
+        'fresh_flowers': 'Fresh Flowers',
+        'fresh_text': 'All flowers are delivered directly from the plantation',
+        'pending': 'Pending',
+        'confirmed': 'Confirmed',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered',
+        'cancelled': 'Cancelled',
+        'assign_courier': 'Assign Courier',
+        'courier_assigned': 'Courier Assigned',
+        'delivery_routes': 'Delivery Routes',
+        'my_deliveries': 'My Deliveries',
+        'statistics': 'Statistics',
+        'users_management': 'Users Management',
+        'make_courier': 'Make Courier',
+        'remove_courier': 'Remove Courier',
+        'make_admin': 'Make Admin',
+        'remove_admin': 'Remove Admin'
     },
     'ka': {
         'site_title': 'ყვავილების მაღაზია',
@@ -114,8 +184,9 @@ TRANSLATIONS = {
         'logout': 'გასვლა',
         'my_orders': 'ჩემი შეკვეთები',
         'admin_panel': 'ადმინ პანელი',
+        'courier_panel': 'კურიერის პანელი',
         'welcome_title': 'კეთილი იყოს თქვენი მობრძანება FlowerShop-ში',
-        'welcome_subtitle': 'ახალი ყვავილები და ბუკეტები ქალაქში მიტანით',
+        'welcome_subtitle': 'ახალი ყვავილები და ბუკეტები ახალციხეში მიტანით',
         'view_catalog': 'კატალოგის ნახვა',
         'popular_products': 'პოპულარული პროდუქტები',
         'add_to_cart': 'კალათაში დამატება',
@@ -147,7 +218,41 @@ TRANSLATIONS = {
         'order_placed': 'შეკვეთა წარმატებით გაფორმდა!',
         'product_added': 'პროდუქტი დაემატა კალათაში!',
         'contacts': 'კონტაქტები',
-        'best_flowers': 'საუკეთესო ყვავილები თქვენი ახლობლებისთვის'
+        'best_flowers': 'საუკეთესო ყვავილები თქვენი ახლობლებისთვის',
+        'address': 'ახალციხე, რუსთაველის ქ. 1',
+        'newsletter': 'ინფორმაციული ბიულეტენი',
+        'newsletter_text': 'მიიღეთ შეტყობინებები ახალი მოსვლების შესახებ',
+        'all_rights': 'ყველა უფლება დაცულია',
+        'cart_cleared': 'კალათა გაიწმინდა!',
+        'order_not_found': 'შეკვეთა ვერ მოიძებნა!',
+        'invalid_credentials': 'არასწორი მომხმარებლის სახელი ან პაროლი!',
+        'username_exists': 'ამ სახელის მქონე მომხმარებელი უკვე არსებობს!',
+        'email_exists': 'ამ ელ.ფოსტის მქონე მომხმარებელი უკვე არსებობს!',
+        'registration_success': 'რეგისტრაცია წარმატებულია!',
+        'access_denied': 'წვდომა აკრძალულია!',
+        'product_updated': 'პროდუქტი განახლდა!',
+        'product_deleted': 'პროდუქტი წაიშალა!',
+        'add_product': 'პროდუქტის დამატება',
+        'edit_product': 'პროდუქტის რედაქტირება',
+        'fast_delivery': 'სწრაფი მიტანა',
+        'delivery_text': 'ვაწვდით ახალ ყვავილებს 2 საათში ახალციხეში',
+        'fresh_flowers': 'ახალი ყვავილები',
+        'fresh_text': 'ყველა ყვავილი მიეწოდება პირდაპირ პლანტაციიდან',
+        'pending': 'მოლოდინში',
+        'confirmed': 'დადასტურებული',
+        'shipped': 'გაგზავნილი',
+        'delivered': 'მიტანილი',
+        'cancelled': 'გაუქმებული',
+        'assign_courier': 'კურიერის დანიშვნა',
+        'courier_assigned': 'კურიერი დანიშნულია',
+        'delivery_routes': 'მიტანის მარშრუტები',
+        'my_deliveries': 'ჩემი მიტანები',
+        'statistics': 'სტატისტიკა',
+        'users_management': 'მომხმარებლების მართვა',
+        'make_courier': 'კურიერად გაკეთება',
+        'remove_courier': 'კურიერის მოხსნა',
+        'make_admin': 'ადმინად გაკეთება',
+        'remove_admin': 'ადმინის მოხსნა'
     }
 }
 
@@ -175,7 +280,9 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    is_courier = db.Column(db.Boolean, default=False)
     orders = db.relationship('Order', backref='user', lazy=True)
+    courier_orders = db.relationship('Order', backref='courier', foreign_keys='Order.courier_id', lazy=True)
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -189,10 +296,12 @@ class Product(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    courier_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     total_amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='pending')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     shipping_address = db.Column(db.Text)
+    district = db.Column(db.String(100))
     phone = db.Column(db.String(20))
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
@@ -236,8 +345,19 @@ class ProductForm(FlaskForm):
     submit = SubmitField('Сохранить')
 
 class CheckoutForm(FlaskForm):
-    shipping_address = TextAreaField('Адрес доставки', validators=[DataRequired()])
-    phone = StringField('Телефон', validators=[DataRequired()])
+    district = SelectField('Район', choices=[
+        ('center', 'Центр города Ахалцихе'),
+        ('rustaveli', 'Район Руставели'),
+        ('agmashenebeli', 'Агмашенебели'),
+        ('tabatskuri', 'Табацкури'),
+        ('vale', 'Вале'),
+        ('ahaltsikhe_village', 'Село Ахалциха'),
+        ('other_village', 'Другое село (в пределах района)')
+    ], validators=[DataRequired()])
+    shipping_address = TextAreaField('Точный адрес', validators=[DataRequired()], 
+                                   render_kw={"placeholder": "Улица, дом, квартира"})
+    phone = StringField('Телефон', validators=[DataRequired()], 
+                       render_kw={"placeholder": "+995 XXX XXX XXX"})
     submit = SubmitField('Оформить заказ')
 
 # Routes
@@ -250,9 +370,12 @@ def set_language(language):
 def get_product(product_id):
     return Product.query.get(int(product_id))
 
+def get_couriers():
+    return User.query.filter_by(is_courier=True).all()
+
 @app.context_processor
 def inject_globals():
-    return dict(get_language=get_language, get_text=get_text, get_product=get_product, Product=Product)
+    return dict(get_language=get_language, get_text=get_text, get_product=get_product, Product=Product, get_couriers=get_couriers)
 
 @app.route('/')
 def index():
@@ -363,6 +486,7 @@ def checkout():
             user_id=current_user.id,
             total_amount=total,
             shipping_address=form.shipping_address.data,
+            district=form.district.data,
             phone=form.phone.data
         )
         db.session.add(order)
@@ -541,15 +665,108 @@ def admin_orders():
 @login_required
 def admin_update_order_status(id):
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
     
     order = Order.query.get_or_404(id)
     status = request.form.get('status')
+    courier_id = request.form.get('courier_id')
+    
+    order.status = status
+    if courier_id:
+        order.courier_id = int(courier_id) if courier_id != '' else None
+    
+    db.session.commit()
+    flash(get_text('order_updated') if get_text('order_updated') != 'order_updated' else 'Заказ обновлен!', 'success')
+    return redirect(url_for('admin_orders'))
+
+# Courier routes
+@app.route('/courier')
+@login_required
+def courier_dashboard():
+    if not current_user.is_courier and not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    my_orders = Order.query.filter_by(courier_id=current_user.id).order_by(Order.created_at.desc()).all()
+    return render_template('courier/dashboard.html', orders=my_orders)
+
+@app.route('/courier/order/<int:id>/update_status', methods=['POST'])
+@login_required
+def courier_update_status(id):
+    if not current_user.is_courier and not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    order = Order.query.get_or_404(id)
+    if order.courier_id != current_user.id and not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('courier_dashboard'))
+    
+    status = request.form.get('status')
     order.status = status
     db.session.commit()
-    flash('Статус заказа обновлен!', 'success')
-    return redirect(url_for('admin_orders'))
+    flash(get_text('order_updated') if get_text('order_updated') != 'order_updated' else 'Статус заказа обновлен!', 'success')
+    return redirect(url_for('courier_dashboard'))
+
+# Admin user management
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    users = User.query.all()
+    return render_template('admin/users.html', users=users)
+
+@app.route('/admin/user/<int:id>/toggle_role', methods=['POST'])
+@login_required
+def admin_toggle_user_role(id):
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    user = User.query.get_or_404(id)
+    role = request.form.get('role')
+    
+    if role == 'courier':
+        user.is_courier = not user.is_courier
+        message = get_text('courier_assigned') if user.is_courier else get_text('courier_removed') if get_text('courier_removed') != 'courier_removed' else 'Курьер удален'
+    elif role == 'admin':
+        user.is_admin = not user.is_admin
+        message = get_text('admin_assigned') if get_text('admin_assigned') != 'admin_assigned' else 'Админ назначен' if user.is_admin else get_text('admin_removed') if get_text('admin_removed') != 'admin_removed' else 'Админ удален'
+    
+    db.session.commit()
+    flash(message, 'success')
+    return redirect(url_for('admin_users'))
+
+# Statistics route
+@app.route('/admin/statistics')
+@login_required
+def admin_statistics():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    total_orders = Order.query.count()
+    total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
+    total_products = Product.query.count()
+    total_users = User.query.count()
+    
+    # Orders by district
+    district_stats = db.session.query(Order.district, db.func.count(Order.id)).group_by(Order.district).all()
+    
+    # Orders by status
+    status_stats = db.session.query(Order.status, db.func.count(Order.id)).group_by(Order.status).all()
+    
+    return render_template('admin/statistics.html', 
+                         total_orders=total_orders,
+                         total_revenue=total_revenue,
+                         total_products=total_products,
+                         total_users=total_users,
+                         district_stats=district_stats,
+                         status_stats=status_stats)
 
 if __name__ == '__main__':
     with app.app_context():
@@ -564,7 +781,19 @@ if __name__ == '__main__':
                 is_admin=True
             )
             db.session.add(admin)
-            db.session.commit()
+            
+        # Создаем курьера по умолчанию
+        courier = User.query.filter_by(username='courier').first()
+        if not courier:
+            courier = User(
+                username='courier',
+                email='courier@example.com',
+                password_hash=generate_password_hash('courier123'),
+                is_courier=True
+            )
+            db.session.add(courier)
+            
+        db.session.commit()
             
         # Добавляем товары по умолчанию
         if Product.query.count() == 0:

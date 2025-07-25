@@ -1,0 +1,129 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ get_text('courier_panel') }} - {{ get_text('site_title') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-motorcycle me-2"></i>{{ get_text('courier_panel') }}</h1>
+                <div class="badge bg-primary fs-6">{{ get_text('my_deliveries') }}: {{ orders|length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                    <h4>{{ orders|selectattr('status', 'equalto', 'pending')|list|length }}</h4>
+                    <p>{{ get_text('pending') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-truck fa-3x text-info mb-3"></i>
+                    <h4>{{ orders|selectattr('status', 'equalto', 'shipped')|list|length }}</h4>
+                    <p>{{ get_text('shipped') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h4>{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</h4>
+                    <p>{{ get_text('delivered') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-map-marked-alt fa-3x text-primary mb-3"></i>
+                    <h4>{{ orders|selectattr('district')|groupby('district')|list|length }}</h4>
+                    <p>{{ get_text('delivery_routes') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ get_text('my_deliveries') }}</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>{{ get_text('customer') if get_text('customer') != 'customer' else 'Клиент' }}</th>
+                                        <th>{{ get_text('district') if get_text('district') != 'district' else 'Район' }}</th>
+                                        <th>{{ get_text('address') }}</th>
+                                        <th>{{ get_text('phone') }}</th>
+                                        <th>{{ get_text('amount') if get_text('amount') != 'amount' else 'Сумма' }}</th>
+                                        <th>{{ get_text('status') if get_text('status') != 'status' else 'Статус' }}</th>
+                                        <th>{{ get_text('actions') if get_text('actions') != 'actions' else 'Действия' }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td><strong>#{{ order.id }}</strong></td>
+                                        <td>{{ order.user.username }}</td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                {% if order.district == 'center' %}Центр
+                                                {% elif order.district == 'rustaveli' %}Руставели  
+                                                {% elif order.district == 'agmashenebeli' %}Агмашенебели
+                                                {% elif order.district == 'tabatskuri' %}Табацкури
+                                                {% elif order.district == 'vale' %}Вале
+                                                {% elif order.district == 'ahaltsikhe_village' %}Село Ахалциха
+                                                {% else %}Другое село
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td><small>{{ order.shipping_address }}</small></td>
+                                        <td>{{ order.phone }}</td>
+                                        <td><strong>{{ order.total_amount }}₾</strong></td>
+                                        <td>
+                                            <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'confirmed' %}info{% elif order.status == 'shipped' %}primary{% elif order.status == 'delivered' %}success{% else %}secondary{% endif %}">
+                                                {{ get_text(order.status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('courier_update_status', id=order.id) }}" class="d-inline">
+                                                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>{{ get_text('pending') }}</option>
+                                                    <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>{{ get_text('confirmed') }}</option>
+                                                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>{{ get_text('shipped') }}</option>
+                                                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>{{ get_text('delivered') }}</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-motorcycle fa-3x text-muted mb-3"></i>
+                            <h5>{{ get_text('no_deliveries') if get_text('no_deliveries') != 'no_deliveries' else 'Нет назначенных доставок' }}</h5>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
