@@ -9,6 +9,155 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
 
+# Multilingual translations
+TRANSLATIONS = {
+    'ru': {
+        'site_title': 'Цветочный Магазин',
+        'home': 'Главная',
+        'catalog': 'Каталог',
+        'categories': 'Категории',
+        'cart': 'Корзина',
+        'login': 'Войти',
+        'register': 'Регистрация',
+        'logout': 'Выйти',
+        'my_orders': 'Мои заказы',
+        'admin_panel': 'Админ панель',
+        'welcome_title': 'Добро пожаловать в FlowerShop',
+        'welcome_subtitle': 'Свежие цветы и букеты с доставкой по городу',
+        'view_catalog': 'Посмотреть каталог',
+        'popular_products': 'Популярные товары',
+        'add_to_cart': 'Добавить в корзину',
+        'continue_shopping': 'Продолжить покупки',
+        'roses': 'Розы',
+        'tulips': 'Тюльпаны',
+        'orchids': 'Орхидеи',
+        'bouquets': 'Букеты',
+        'potted': 'Горшечные растения',
+        'in_stock': 'В наличии',
+        'out_of_stock': 'Нет в наличии',
+        'price': 'Цена',
+        'empty_cart': 'Ваша корзина пуста',
+        'total': 'Итого',
+        'checkout': 'Оформить заказ',
+        'shipping_address': 'Адрес доставки',
+        'phone': 'Телефон',
+        'username': 'Имя пользователя',
+        'password': 'Пароль',
+        'email': 'Email',
+        'name': 'Название',
+        'description': 'Описание',
+        'category': 'Категория',
+        'quantity': 'Количество',
+        'save': 'Сохранить',
+        'delete': 'Удалить',
+        'edit': 'Редактировать',
+        'add': 'Добавить',
+        'order_placed': 'Заказ успешно оформлен!',
+        'product_added': 'Товар добавлен в корзину!',
+        'contacts': 'Контакты',
+        'best_flowers': 'Лучшие цветы для ваших близких'
+    },
+    'en': {
+        'site_title': 'Flower Shop',
+        'home': 'Home',
+        'catalog': 'Catalog',
+        'categories': 'Categories',
+        'cart': 'Cart',
+        'login': 'Login',
+        'register': 'Register',
+        'logout': 'Logout',
+        'my_orders': 'My Orders',
+        'admin_panel': 'Admin Panel',
+        'welcome_title': 'Welcome to FlowerShop',
+        'welcome_subtitle': 'Fresh flowers and bouquets with city delivery',
+        'view_catalog': 'View Catalog',
+        'popular_products': 'Popular Products',
+        'add_to_cart': 'Add to Cart',
+        'continue_shopping': 'Continue Shopping',
+        'roses': 'Roses',
+        'tulips': 'Tulips',
+        'orchids': 'Orchids',
+        'bouquets': 'Bouquets',
+        'potted': 'Potted Plants',
+        'in_stock': 'In Stock',
+        'out_of_stock': 'Out of Stock',
+        'price': 'Price',
+        'empty_cart': 'Your cart is empty',
+        'total': 'Total',
+        'checkout': 'Checkout',
+        'shipping_address': 'Shipping Address',
+        'phone': 'Phone',
+        'username': 'Username',
+        'password': 'Password',
+        'email': 'Email',
+        'name': 'Name',
+        'description': 'Description',
+        'category': 'Category',
+        'quantity': 'Quantity',
+        'save': 'Save',
+        'delete': 'Delete',
+        'edit': 'Edit',
+        'add': 'Add',
+        'order_placed': 'Order placed successfully!',
+        'product_added': 'Product added to cart!',
+        'contacts': 'Contacts',
+        'best_flowers': 'Best flowers for your loved ones'
+    },
+    'ka': {
+        'site_title': 'ყვავილების მაღაზია',
+        'home': 'მთავარი',
+        'catalog': 'კატალოგი',
+        'categories': 'კატეგორიები',
+        'cart': 'კალათა',
+        'login': 'შესვლა',
+        'register': 'რეგისტრაცია',
+        'logout': 'გასვლა',
+        'my_orders': 'ჩემი შეკვეთები',
+        'admin_panel': 'ადმინ პანელი',
+        'welcome_title': 'კეთილი იყოს თქვენი მობრძანება FlowerShop-ში',
+        'welcome_subtitle': 'ახალი ყვავილები და ბუკეტები ქალაქში მიტანით',
+        'view_catalog': 'კატალოგის ნახვა',
+        'popular_products': 'პოპულარული პროდუქტები',
+        'add_to_cart': 'კალათაში დამატება',
+        'continue_shopping': 'საყიდლების გაგრძელება',
+        'roses': 'ვარდები',
+        'tulips': 'ტიულიპები',
+        'orchids': 'ორქიდეები',
+        'bouquets': 'ბუკეტები',
+        'potted': 'ქოთნიანი მცენარეები',
+        'in_stock': 'მარაგშია',
+        'out_of_stock': 'არ არის მარაგში',
+        'price': 'ფასი',
+        'empty_cart': 'თქვენი კალათა ცარიელია',
+        'total': 'სულ',
+        'checkout': 'შეკვეთის გაფორმება',
+        'shipping_address': 'მიტანის მისამართი',
+        'phone': 'ტელეფონი',
+        'username': 'მომხმარებლის სახელი',
+        'password': 'პაროლი',
+        'email': 'ელ.ფოსტა',
+        'name': 'სახელი',
+        'description': 'აღწერა',
+        'category': 'კატეგორია',
+        'quantity': 'რაოდენობა',
+        'save': 'შენახვა',
+        'delete': 'წაშლა',
+        'edit': 'რედაქტირება',
+        'add': 'დამატება',
+        'order_placed': 'შეკვეთა წარმატებით გაფორმდა!',
+        'product_added': 'პროდუქტი დაემატა კალათაში!',
+        'contacts': 'კონტაქტები',
+        'best_flowers': 'საუკეთესო ყვავილები თქვენი ახლობლებისთვის'
+    }
+}
+
+def get_language():
+    return session.get('language', 'ru')
+
+def get_text(key):
+    lang = get_language()
+    return TRANSLATIONS.get(lang, TRANSLATIONS['ru']).get(key, key)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flower_shop.db'
@@ -92,10 +241,16 @@ class CheckoutForm(FlaskForm):
     submit = SubmitField('Оформить заказ')
 
 # Routes
+@app.route('/set_language/<language>')
+def set_language(language):
+    if language in ['ru', 'en', 'ka']:
+        session['language'] = language
+    return redirect(request.referrer or url_for('index'))
+
 @app.route('/')
 def index():
     products = Product.query.limit(8).all()
-    return render_template('index.html', products=products)
+    return render_template('index.html', products=products, get_text=get_text)
 
 @app.route('/catalog')
 def catalog():
@@ -104,12 +259,12 @@ def catalog():
         products = Product.query.filter_by(category=category).all()
     else:
         products = Product.query.all()
-    return render_template('catalog.html', products=products, category=category)
+    return render_template('catalog.html', products=products, category=category, get_text=get_text)
 
 @app.route('/product/<int:id>')
 def product_detail(id):
     product = Product.query.get_or_404(id)
-    return render_template('product_detail.html', product=product)
+    return render_template('product_detail.html', product=product, get_text=get_text)
 
 @app.route('/add_to_cart/<int:product_id>')
 def add_to_cart(product_id):
@@ -125,13 +280,13 @@ def add_to_cart(product_id):
         cart[product_id_str] = 1
     
     session['cart'] = cart
-    flash('Товар добавлен в корзину!', 'success')
+    flash(get_text('product_added'), 'success')
     return redirect(url_for('catalog'))
 
 @app.route('/cart')
 def cart():
     if 'cart' not in session or not session['cart']:
-        return render_template('cart.html', cart_items=[], total=0)
+        return render_template('cart.html', cart_items=[], total=0, get_text=get_text)
     
     cart = session['cart']
     cart_items = []
@@ -148,7 +303,7 @@ def cart():
             })
             total += item_total
     
-    return render_template('cart.html', cart_items=cart_items, total=total)
+    return render_template('cart.html', cart_items=cart_items, total=total, get_text=get_text)
 
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
@@ -217,22 +372,22 @@ def checkout():
         flash('Заказ успешно оформлен!', 'success')
         return redirect(url_for('order_success', order_id=order.id))
     
-    return render_template('checkout.html', form=form)
+    return render_template('checkout.html', form=form, get_text=get_text)
 
 @app.route('/order_success/<int:order_id>')
 @login_required
 def order_success(order_id):
     order = Order.query.get_or_404(order_id)
     if order.user_id != current_user.id:
-        flash('Заказ не найден!', 'error')
+        flash(get_text('order_not_found') if get_text('order_not_found') != 'order_not_found' else 'Заказ не найден!', 'error')
         return redirect(url_for('index'))
-    return render_template('order_success.html', order=order)
+    return render_template('order_success.html', order=order, get_text=get_text)
 
 @app.route('/my_orders')
 @login_required
 def my_orders():
     orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
-    return render_template('my_orders.html', orders=orders)
+    return render_template('my_orders.html', orders=orders, get_text=get_text)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -242,8 +397,8 @@ def login():
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
             return redirect(url_for('index'))
-        flash('Неверное имя пользователя или пароль!', 'error')
-    return render_template('login.html', form=form)
+        flash(get_text('invalid_credentials') if get_text('invalid_credentials') != 'invalid_credentials' else 'Неверное имя пользователя или пароль!', 'error')
+    return render_template('login.html', form=form, get_text=get_text)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -253,9 +408,9 @@ def register():
         existing_email = User.query.filter_by(email=form.email.data).first()
         
         if existing_user:
-            flash('Пользователь с таким именем уже существует!', 'error')
+            flash(get_text('username_exists') if get_text('username_exists') != 'username_exists' else 'Пользователь с таким именем уже существует!', 'error')
         elif existing_email:
-            flash('Пользователь с таким email уже существует!', 'error')
+            flash(get_text('email_exists') if get_text('email_exists') != 'email_exists' else 'Пользователь с таким email уже существует!', 'error')
         else:
             user = User(
                 username=form.username.data,
@@ -265,9 +420,9 @@ def register():
             db.session.add(user)
             db.session.commit()
             login_user(user)
-            flash('Регистрация успешна!', 'success')
+            flash(get_text('registration_success') if get_text('registration_success') != 'registration_success' else 'Регистрация успешна!', 'success')
             return redirect(url_for('index'))
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form, get_text=get_text)
 
 @app.route('/logout')
 @login_required
@@ -280,28 +435,28 @@ def logout():
 @login_required
 def admin():
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
     
     products = Product.query.all()
     orders = Order.query.order_by(Order.created_at.desc()).limit(10).all()
-    return render_template('admin/dashboard.html', products=products, orders=orders)
+    return render_template('admin/dashboard.html', products=products, orders=orders, get_text=get_text)
 
 @app.route('/admin/products')
 @login_required
 def admin_products():
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
     
     products = Product.query.all()
-    return render_template('admin/products.html', products=products)
+    return render_template('admin/products.html', products=products, get_text=get_text)
 
 @app.route('/admin/product/add', methods=['GET', 'POST'])
 @login_required
 def admin_add_product():
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
     
     form = ProductForm()
@@ -316,16 +471,16 @@ def admin_add_product():
         )
         db.session.add(product)
         db.session.commit()
-        flash('Товар добавлен!', 'success')
+        flash(get_text('product_added') if get_text('product_added') != 'product_added' else 'Товар добавлен!', 'success')
         return redirect(url_for('admin_products'))
     
-    return render_template('admin/product_form.html', form=form, title='Добавить товар')
+    return render_template('admin/product_form.html', form=form, title=get_text('add_product') if get_text('add_product') != 'add_product' else 'Добавить товар', get_text=get_text)
 
 @app.route('/admin/product/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 def admin_edit_product(id):
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
     
     product = Product.query.get_or_404(id)
@@ -339,33 +494,33 @@ def admin_edit_product(id):
         product.category = form.category.data
         product.image_url = form.image_url.data
         db.session.commit()
-        flash('Товар обновлен!', 'success')
+        flash(get_text('product_updated') if get_text('product_updated') != 'product_updated' else 'Товар обновлен!', 'success')
         return redirect(url_for('admin_products'))
     
-    return render_template('admin/product_form.html', form=form, title='Редактировать товар')
+    return render_template('admin/product_form.html', form=form, title=get_text('edit_product') if get_text('edit_product') != 'edit_product' else 'Редактировать товар', get_text=get_text)
 
 @app.route('/admin/product/<int:id>/delete')
 @login_required
 def admin_delete_product(id):
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
     
     product = Product.query.get_or_404(id)
     db.session.delete(product)
     db.session.commit()
-    flash('Товар удален!', 'success')
+    flash(get_text('product_deleted') if get_text('product_deleted') != 'product_deleted' else 'Товар удален!', 'success')
     return redirect(url_for('admin_products'))
 
 @app.route('/admin/orders')
 @login_required
 def admin_orders():
     if not current_user.is_admin:
-        flash('Доступ запрещен!', 'error')
+        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
         return redirect(url_for('index'))
     
     orders = Order.query.order_by(Order.created_at.desc()).all()
-    return render_template('admin/orders.html', orders=orders)
+    return render_template('admin/orders.html', orders=orders, get_text=get_text)
 
 @app.route('/admin/order/<int:id>/update_status', methods=['POST'])
 @login_required
