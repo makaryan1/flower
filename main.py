@@ -247,10 +247,14 @@ def set_language(language):
         session['language'] = language
     return redirect(request.referrer or url_for('index'))
 
+@app.context_processor
+def inject_globals():
+    return dict(get_language=get_language, get_text=get_text)
+
 @app.route('/')
 def index():
     products = Product.query.limit(8).all()
-    return render_template('index.html', products=products, get_text=get_text)
+    return render_template('index.html', products=products)
 
 @app.route('/catalog')
 def catalog():
@@ -259,12 +263,12 @@ def catalog():
         products = Product.query.filter_by(category=category).all()
     else:
         products = Product.query.all()
-    return render_template('catalog.html', products=products, category=category, get_text=get_text)
+    return render_template('catalog.html', products=products, category=category)
 
 @app.route('/product/<int:id>')
 def product_detail(id):
     product = Product.query.get_or_404(id)
-    return render_template('product_detail.html', product=product, get_text=get_text)
+    return render_template('product_detail.html', product=product)
 
 @app.route('/add_to_cart/<int:product_id>')
 def add_to_cart(product_id):
@@ -286,7 +290,7 @@ def add_to_cart(product_id):
 @app.route('/cart')
 def cart():
     if 'cart' not in session or not session['cart']:
-        return render_template('cart.html', cart_items=[], total=0, get_text=get_text)
+        return render_template('cart.html', cart_items=[], total=0)
     
     cart = session['cart']
     cart_items = []
@@ -303,7 +307,7 @@ def cart():
             })
             total += item_total
     
-    return render_template('cart.html', cart_items=cart_items, total=total, get_text=get_text)
+    return render_template('cart.html', cart_items=cart_items, total=total)
 
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
@@ -372,7 +376,7 @@ def checkout():
         flash('Заказ успешно оформлен!', 'success')
         return redirect(url_for('order_success', order_id=order.id))
     
-    return render_template('checkout.html', form=form, get_text=get_text)
+    return render_template('checkout.html', form=form)
 
 @app.route('/order_success/<int:order_id>')
 @login_required
@@ -381,13 +385,13 @@ def order_success(order_id):
     if order.user_id != current_user.id:
         flash(get_text('order_not_found') if get_text('order_not_found') != 'order_not_found' else 'Заказ не найден!', 'error')
         return redirect(url_for('index'))
-    return render_template('order_success.html', order=order, get_text=get_text)
+    return render_template('order_success.html', order=order)
 
 @app.route('/my_orders')
 @login_required
 def my_orders():
     orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
-    return render_template('my_orders.html', orders=orders, get_text=get_text)
+    return render_template('my_orders.html', orders=orders)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -398,7 +402,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         flash(get_text('invalid_credentials') if get_text('invalid_credentials') != 'invalid_credentials' else 'Неверное имя пользователя или пароль!', 'error')
-    return render_template('login.html', form=form, get_text=get_text)
+    return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -422,7 +426,7 @@ def register():
             login_user(user)
             flash(get_text('registration_success') if get_text('registration_success') != 'registration_success' else 'Регистрация успешна!', 'success')
             return redirect(url_for('index'))
-    return render_template('register.html', form=form, get_text=get_text)
+    return render_template('register.html', form=form)
 
 @app.route('/logout')
 @login_required
@@ -440,7 +444,7 @@ def admin():
     
     products = Product.query.all()
     orders = Order.query.order_by(Order.created_at.desc()).limit(10).all()
-    return render_template('admin/dashboard.html', products=products, orders=orders, get_text=get_text)
+    return render_template('admin/dashboard.html', products=products, orders=orders)
 
 @app.route('/admin/products')
 @login_required
@@ -450,7 +454,7 @@ def admin_products():
         return redirect(url_for('index'))
     
     products = Product.query.all()
-    return render_template('admin/products.html', products=products, get_text=get_text)
+    return render_template('admin/products.html', products=products)
 
 @app.route('/admin/product/add', methods=['GET', 'POST'])
 @login_required
@@ -474,7 +478,7 @@ def admin_add_product():
         flash(get_text('product_added') if get_text('product_added') != 'product_added' else 'Товар добавлен!', 'success')
         return redirect(url_for('admin_products'))
     
-    return render_template('admin/product_form.html', form=form, title=get_text('add_product') if get_text('add_product') != 'add_product' else 'Добавить товар', get_text=get_text)
+    return render_template('admin/product_form.html', form=form, title=get_text('add_product') if get_text('add_product') != 'add_product' else 'Добавить товар')
 
 @app.route('/admin/product/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -497,7 +501,7 @@ def admin_edit_product(id):
         flash(get_text('product_updated') if get_text('product_updated') != 'product_updated' else 'Товар обновлен!', 'success')
         return redirect(url_for('admin_products'))
     
-    return render_template('admin/product_form.html', form=form, title=get_text('edit_product') if get_text('edit_product') != 'edit_product' else 'Редактировать товар', get_text=get_text)
+    return render_template('admin/product_form.html', form=form, title=get_text('edit_product') if get_text('edit_product') != 'edit_product' else 'Редактировать товар')
 
 @app.route('/admin/product/<int:id>/delete')
 @login_required
@@ -520,7 +524,7 @@ def admin_orders():
         return redirect(url_for('index'))
     
     orders = Order.query.order_by(Order.created_at.desc()).all()
-    return render_template('admin/orders.html', orders=orders, get_text=get_text)
+    return render_template('admin/orders.html', orders=orders)
 
 @app.route('/admin/order/<int:id>/update_status', methods=['POST'])
 @login_required
