@@ -247,9 +247,12 @@ def set_language(language):
         session['language'] = language
     return redirect(request.referrer or url_for('index'))
 
+def get_product(product_id):
+    return Product.query.get(int(product_id))
+
 @app.context_processor
 def inject_globals():
-    return dict(get_language=get_language, get_text=get_text)
+    return dict(get_language=get_language, get_text=get_text, get_product=get_product, Product=Product)
 
 @app.route('/')
 def index():
@@ -328,6 +331,14 @@ def remove_from_cart(product_id):
     if 'cart' in session:
         session['cart'].pop(str(product_id), None)
         session.modified = True
+    return redirect(url_for('cart'))
+
+@app.route('/clear_cart')
+def clear_cart():
+    if 'cart' in session:
+        session.pop('cart', None)
+        session.modified = True
+        flash(get_text('cart_cleared') if get_text('cart_cleared') != 'cart_cleared' else 'Корзина очищена!', 'success')
     return redirect(url_for('cart'))
 
 @app.route('/checkout', methods=['GET', 'POST'])

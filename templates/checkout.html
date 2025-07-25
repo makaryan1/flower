@@ -1,79 +1,89 @@
 
 {% extends "base.html" %}
 
-{% block title %}Оформление заказа - Цветочный Магазин{% endblock %}
+{% block title %}{{ get_text('checkout') }} - {{ get_text('site_title') }}{% endblock %}
 
 {% block content %}
-<h1>Оформление заказа</h1>
-
-<div class="row">
-    <div class="col-md-8">
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Данные для доставки</h4>
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>{{ get_text('checkout') }}
+                    </h4>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        {{ form.shipping_address.label(class="form-label") }}
-                        {{ form.shipping_address(class="form-control", rows="3") }}
-                        {% if form.shipping_address.errors %}
-                            <div class="text-danger">
-                                {% for error in form.shipping_address.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.phone.label(class="form-label") }}
-                        {{ form.phone(class="form-control") }}
-                        {% if form.phone.errors %}
-                            <div class="text-danger">
-                                {% for error in form.phone.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.shipping_address.label(class="form-label") }}
+                            {{ form.shipping_address(class="form-control", rows="3") }}
+                            {% if form.shipping_address.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.shipping_address.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control") }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-success btn-lg") }}
+                        </div>
+                    </form>
                 </div>
             </div>
-            
-            <div class="d-grid">
-                {{ form.submit(class="btn btn-success btn-lg") }}
-            </div>
-        </form>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Ваш заказ</h4>
-            </div>
-            <div class="card-body">
-                {% set cart = session.cart %}
-                {% if cart %}
-                    {% set total = 0 %}
-                    {% for product_id, quantity in cart.items() %}
-                        {% set product = get_product(product_id) %}
-                        {% if product %}
-                            {% set item_total = product.price * quantity %}
-                            {% set total = total + item_total %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>{{ product.name }} × {{ quantity }}</span>
-                                <span>{{ item_total }}₽</span>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <strong>Итого:</strong>
-                        <strong class="text-success">{{ total }}₽</strong>
-                    </div>
-                {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ get_text('order_summary') if get_text('order_summary') != 'order_summary' else 'Итоги заказа' }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if session.cart %}
+                        {% for product_id, quantity in session.cart.items() %}
+                            {% set product = Product.query.get(product_id|int) %}
+                            {% if product %}
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <div>
+                                        <small class="text-muted">{{ product.name }}</small><br>
+                                        <small>{{ quantity }} × {{ product.price }}₽</small>
+                                    </div>
+                                    <strong>{{ (quantity * product.price) }}₽</strong>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                            <strong>{{ get_text('total') }}:</strong>
+                            <strong class="text-success">
+                                {% set total = 0 %}
+                                {% for product_id, quantity in session.cart.items() %}
+                                    {% set product = Product.query.get(product_id|int) %}
+                                    {% if product %}
+                                        {% set total = total + (quantity * product.price) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ total }}₽
+                            </strong>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

@@ -346,8 +346,85 @@ body {
 .cart-summary {
     background: linear-gradient(135deg, var(--light-green) 0%, #f8f9fa 100%);
     border-radius: var(--border-radius);
-    padding: 2rem;
     box-shadow: 0 5px 25px var(--shadow-light);
+}
+
+.cart-item {
+    transition: var(--transition);
+    padding: 1rem;
+}
+
+.cart-item:hover {
+    background: var(--light-green);
+}
+
+.cart-item-image {
+    height: 150px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.quantity-controls .input-group {
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.quantity-controls .form-control {
+    border: none;
+    font-weight: bold;
+}
+
+.quantity-controls .btn {
+    border: none;
+    transition: var(--transition);
+}
+
+.quantity-controls .btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.empty-cart-section {
+    padding: 3rem 2rem;
+}
+
+.empty-cart-icon {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.summary-details {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.summary-details::-webkit-scrollbar {
+    width: 4px;
+}
+
+.summary-details::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.summary-details::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
 }
 
 /* Категории товаров */
