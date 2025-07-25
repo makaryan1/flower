@@ -281,8 +281,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_courier = db.Column(db.Boolean, default=False)
-    orders = db.relationship('Order', backref='user', lazy=True)
-    courier_orders = db.relationship('Order', backref='courier', foreign_keys='Order.courier_id', lazy=True)
+    orders = db.relationship('Order', foreign_keys='Order.user_id', backref='user', lazy=True)
+    courier_orders = db.relationship('Order', foreign_keys='Order.courier_id', backref='courier', lazy=True)
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
