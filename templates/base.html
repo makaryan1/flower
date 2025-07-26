@@ -16,14 +16,14 @@
         <div class="container">
             <div class="d-flex justify-content-end py-2">
                 <div class="dropdown">
-                    <button class="btn btn-link text-white dropdown-toggle language-btn" type="button" data-bs-toggle="dropdown">
+                    <button class="btn btn-link text-white dropdown-toggle language-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-globe me-1"></i>
-                        {% if session.get('language') == 'en' %}English{% elif session.get('language') == 'ka' %}ქართული{% else %}Русский{% endif %}
+                        {% if get_language() == 'en' %}English{% elif get_language() == 'ka' %}ქართული{% else %}Русский{% endif %}
                     </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('set_language', language='ru') }}">🇷🇺 Русский</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('set_language', language='en') }}">🇺🇸 English</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('set_language', language='ka') }}">🇬🇪 ქართული</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item {% if get_language() == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}">🇷🇺 Русский</a></li>
+                        <li><a class="dropdown-item {% if get_language() == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}">🇺🇸 English</a></li>
+                        <li><a class="dropdown-item {% if get_language() == 'ka' %}active{% endif %}" href="{{ url_for('set_language', language='ka') }}">🇬🇪 ქართული</a></li>
                     </ul>
                 </div>
             </div>
