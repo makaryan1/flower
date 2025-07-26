@@ -399,13 +399,14 @@ class ProductForm(FlaskForm):
 
 class CheckoutForm(FlaskForm):
     district = SelectField('Район', choices=[
-        ('center', 'Центр города Ахалцихе'),
-        ('rustaveli', 'Район Руставели'),
-        ('agmashenebeli', 'Агмашенебели'),
-        ('tabatskuri', 'Табацкури'),
-        ('vale', 'Вале'),
-        ('ahaltsikhe_village', 'Село Ахалциха'),
-        ('other_village', 'Другое село (в пределах района)')
+        ('center', 'Центр Ахалцихе - 5₾'),
+        ('rustaveli', 'Руставели - 5₾'),
+        ('agmashenebeli', 'Агмашенебели - 5₾'),
+        ('rabat', 'Рабат - 5₾'),
+        ('tabatskuri', 'Табацкури - 10₾'),
+        ('vale', 'Вале - 10₾'),
+        ('okami', 'Окаме - 10₾'),
+        ('akhalkalaki_road', 'Ахалкалакская дорога - 10₾')
     ], validators=[DataRequired()])
     shipping_address = TextAreaField('Точный адрес', validators=[DataRequired()], 
                                    render_kw={"placeholder": "Улица, дом, квартира"})
@@ -436,9 +437,23 @@ def get_product(product_id):
 def get_couriers():
     return User.query.filter_by(is_courier=True).all()
 
+def get_delivery_cost(district):
+    """Calculate delivery cost based on district"""
+    # Ахалцихе (5 лари)
+    city_districts = ['center', 'rustaveli', 'agmashenebeli', 'rabat']
+    # Деревни возле Ахалцихе (10 лари)  
+    village_districts = ['tabatskuri', 'vale', 'okami', 'akhalkalaki_road']
+    
+    if district in city_districts:
+        return 5
+    elif district in village_districts:
+        return 10
+    else:
+        return 10  # default for any other areas
+
 @app.context_processor
 def inject_globals():
-    return dict(get_language=get_language, get_text=get_text, get_product=get_product, Product=Product, get_couriers=get_couriers)
+    return dict(get_language=get_language, get_text=get_text, get_product=get_product, Product=Product, get_couriers=get_couriers, get_delivery_cost=get_delivery_cost)
 
 @app.route('/')
 def index():
@@ -548,10 +563,19 @@ def checkout():
         # Get payment method and bank from form data
         payment_method = request.form.get('payment', 'cash')
         bank = request.form.get('bank', '') if payment_method == 'online' else None
+        delivery_method = request.form.get('delivery', 'standard')
+        
+        # Calculate delivery cost
+        delivery_cost = 0
+        if delivery_method != 'pickup':
+            delivery_cost = get_delivery_cost(form.district.data)
+        
+        # Add delivery cost to total
+        final_total = total + delivery_cost
 
         order = Order(
             user_id=current_user.id,
-            total_amount=total,
+            total_amount=final_total,
             shipping_address=form.shipping_address.data,
             district=form.district.data,
             phone=form.phone.data,

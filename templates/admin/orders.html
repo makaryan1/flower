@@ -46,13 +46,15 @@
                 <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
                 <td>
                     <span class="badge bg-info">
-                        {% if order.district == 'center' %}Центр
-                        {% elif order.district == 'rustaveli' %}Руставели  
+                        {% if order.district == 'center' %}Центр Ахалцихе
+                        {% elif order.district == 'rustaveli' %}Руставели
                         {% elif order.district == 'agmashenebeli' %}Агмашенебели
+                        {% elif order.district == 'rabat' %}Рабат
                         {% elif order.district == 'tabatskuri' %}Табацкури
                         {% elif order.district == 'vale' %}Вале
-                        {% elif order.district == 'ahaltsikhe_village' %}Село Ахалциха
-                        {% else %}Другое село
+                        {% elif order.district == 'okami' %}Окаме
+                        {% elif order.district == 'akhalkalaki_road' %}Ахалкалакская дорога
+                        {% else %}{{ order.district }}
                         {% endif %}
                     </span>
                 </td>

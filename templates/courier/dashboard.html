@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}{{ get_text('courier_panel') }} - {{ get_text('site_title') }}{% endblock %}
@@ -92,7 +91,14 @@
                                                 {% endif %}
                                             </span>
                                         </td>
-                                        <td><small>{{ order.shipping_address }}</small></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <small class="me-2">{{ order.shipping_address }}</small>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="openGoogleMaps('{{ order.shipping_address }}', '{{ order.district }}')" title="Открыть в Google Maps">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                         <td>{{ order.phone }}</td>
                                         <td><strong>{{ order.total_amount }}₾</strong></td>
                                         <td>
@@ -126,4 +132,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function openGoogleMaps(address, district) {
+        let fullAddress = address;
+        if (district) {
+            fullAddress = address + ", " + district;
+        }
+        const encodedAddress = encodeURIComponent(fullAddress);
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+        window.open(googleMapsUrl, '_blank');
+    }
+</script>
 {% endblock %}
