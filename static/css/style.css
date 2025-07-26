@@ -1,16 +1,16 @@
 
 :root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --accent-color: #f093fb;
-    --dark-blue: #4c63d2;
-    --light-purple: #e0e7ff;
+    --primary-color: #ff69b4;
+    --secondary-color: #ff1493;
+    --accent-color: #ffc0cb;
+    --dark-blue: #ff69b4;
+    --light-purple: #ffe4e1;
     --text-color: #2d3748;
-    --border-color: #e2e8f0;
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --shadow-soft: 0 10px 25px rgba(102, 126, 234, 0.15);
-    --shadow-medium: 0 20px 40px rgba(102, 126, 234, 0.2);
+    --border-color: #ffc0cb;
+    --gradient-primary: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+    --gradient-secondary: linear-gradient(135deg, #ffc0cb 0%, #ff69b4 100%);
+    --shadow-soft: 0 10px 25px rgba(255, 105, 180, 0.15);
+    --shadow-medium: 0 20px 40px rgba(255, 105, 180, 0.2);
 }
 
 * {
@@ -21,8 +21,49 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
     min-height: 100vh;
+}
+
+/* Pink theme styles */
+.bg-pink {
+    background: var(--gradient-primary) !important;
+}
+
+.text-pink {
+    color: var(--primary-color) !important;
+}
+
+.btn-pink {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-pink:hover {
+    background: var(--gradient-secondary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+}
+
+.pink-card {
+    border: 2px solid var(--accent-color);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.pink-input {
+    border: 2px solid var(--accent-color);
+    border-radius: 15px;
+}
+
+.pink-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 105, 180, 0.15);
 }
 
 .language-bar {
