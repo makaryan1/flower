@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}Управление товарами - Админ панель{% endblock %}
@@ -21,7 +20,7 @@
                 <th>Цена</th>
                 <th>Количество</th>
                 <th>Категория</th>
-                <th>Действия</th>
+                <th>{{ get_text('actions') if get_text('actions') != 'actions' else 'Действия' }}</th>
             </tr>
         </thead>
         <tbody>
@@ -35,14 +34,14 @@
                 <td>{{ product.name }}</td>
                 <td>{{ product.price }}₽</td>
                 <td>{{ product.stock }}</td>
-                <td>{{ product.category }}</td>
+                <td>{{ get_text(product.category) }}</td>
                 <td>
                     <a href="{{ url_for('admin_edit_product', id=product.id) }}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-edit"></i>
                     </a>
                     <a href="{{ url_for('admin_delete_product', id=product.id) }}" 
                        class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('Вы уверены, что хотите удалить этот товар?')">
+                       onclick="return confirm('{{ get_text('confirm_delete') if get_text('confirm_delete') != 'confirm_delete' else 'Вы уверены, что хотите удалить этот товар?' }}')">
                         <i class="fas fa-trash"></i>
                     </a>
                 </td>

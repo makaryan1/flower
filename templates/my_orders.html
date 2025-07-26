@@ -1,52 +1,60 @@
 
 {% extends "base.html" %}
 
-{% block title %}Мои заказы - Цветочный Магазин{% endblock %}
+{% block title %}{{ get_text('my_orders') }} - {{ get_text('site_title') }}{% endblock %}
 
 {% block content %}
-<h1>Мои заказы</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-box me-2"></i>{{ get_text('my_orders') }}
+            </h1>
+        </div>
+    </div>
 
-{% if orders %}
-    {% for order in orders %}
-    <div class="card mb-3">
-        <div class="card-header">
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>Заказ #{{ order.id }}</strong>
-                </div>
-                <div class="col-md-6 text-end">
-                    <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'confirmed' %}info{% elif order.status == 'delivered' %}success{% else %}secondary{% endif %}">
-                        {{ order.status }}
-                    </span>
+    {% if orders %}
+        <div class="row">
+            {% for order in orders %}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ get_text('order') if get_text('order') != 'order' else 'Заказ' }} #{{ order.id }}</h5>
+                        <span class="badge status-{{ order.status }}">{{ get_text(order.status) }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>{{ get_text('date') if get_text('date') != 'date' else 'Дата' }}:</strong> {{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                                <p><strong>{{ get_text('total') }}:</strong> <span class="text-success">{{ order.total_amount }}₽</span></p>
+                                <p><strong>{{ get_text('shipping_address') }}:</strong> {{ order.shipping_address }}</p>
+                                <p><strong>{{ get_text('phone') }}:</strong> {{ order.phone }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>{{ get_text('order_items') if get_text('order_items') != 'order_items' else 'Товары в заказе' }}:</h6>
+                                <ul class="list-unstyled">
+                                    {% for item in order.items %}
+                                        <li class="mb-1">
+                                            {{ item.product.name }} × {{ item.quantity }} = {{ item.price * item.quantity }}₽
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Дата:</strong> {{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
-                    <p><strong>Сумма:</strong> {{ order.total_amount }}₽</p>
-                    <p><strong>Адрес доставки:</strong> {{ order.shipping_address }}</p>
-                    <p><strong>Телефон:</strong> {{ order.phone }}</p>
-                </div>
-                <div class="col-md-6">
-                    <h6>Товары:</h6>
-                    <ul class="list-unstyled">
-                        {% for item in order.items %}
-                        <li>{{ item.product.name }} × {{ item.quantity }} = {{ item.price * item.quantity }}₽</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-box-open fa-5x text-muted mb-4"></i>
+            <h2>{{ get_text('no_orders') if get_text('no_orders') != 'no_orders' else 'У вас пока нет заказов' }}</h2>
+            <p class="lead text-muted">{{ get_text('no_orders_text') if get_text('no_orders_text') != 'no_orders_text' else 'Начните покупки в нашем каталоге' }}</p>
+            <a href="{{ url_for('catalog') }}" class="btn btn-success btn-lg">
+                <i class="fas fa-shopping-bag me-2"></i>{{ get_text('view_catalog') }}
+            </a>
         </div>
-    </div>
-    {% endfor %}
-{% else %}
-    <div class="text-center">
-        <i class="fas fa-shopping-bag fa-5x text-muted mb-4"></i>
-        <h3>У вас пока нет заказов</h3>
-        <p class="lead">Начните покупки в нашем каталоге</p>
-        <a href="{{ url_for('catalog') }}" class="btn btn-success btn-lg">Перейти в каталог</a>
-    </div>
-{% endif %}
+    {% endif %}
+</div>
 {% endblock %}
