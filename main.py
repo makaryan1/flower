@@ -738,8 +738,42 @@ def courier_dashboard():
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
 
+    # My assigned orders
     my_orders = Order.query.filter_by(courier_id=current_user.id).order_by(Order.created_at.desc()).all()
-    return render_template('courier/dashboard.html', orders=my_orders)
+    
+    # Available orders (not assigned to any courier)
+    available_orders = Order.query.filter_by(courier_id=None, status='confirmed').order_by(Order.created_at.desc()).all()
+    
+    # Statistics for courier
+    total_deliveries = Order.query.filter_by(courier_id=current_user.id, status='delivered').count()
+    pending_deliveries = Order.query.filter_by(courier_id=current_user.id).filter(
+        Order.status.in_(['confirmed', 'shipped'])
+    ).count()
+    
+    return render_template('courier/dashboard.html', 
+                         orders=my_orders,
+                         available_orders=available_orders,
+                         total_deliveries=total_deliveries,
+                         pending_deliveries=pending_deliveries)
+
+# Take order by courier
+@app.route('/courier/take_order/<int:order_id>')
+@login_required
+def courier_take_order(order_id):
+    if not current_user.is_courier and not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    order = Order.query.get_or_404(order_id)
+    if order.courier_id is None and order.status == 'confirmed':
+        order.courier_id = current_user.id
+        order.status = 'shipped'
+        db.session.commit()
+        flash('Заказ взят в работу!', 'success')
+    else:
+        flash('Заказ уже назначен или недоступен', 'warning')
+    
+    return redirect(url_for('courier_dashboard'))
 
 @app.route('/courier/order/<int:id>/update_status', methods=['POST'])
 @login_required
@@ -768,7 +802,15 @@ def admin_users():
         return redirect(url_for('index'))
 
     users = User.query.all()
-    return render_template('admin/users.html', users=users)
+    total_users = User.query.count()
+    total_admins = User.query.filter_by(is_admin=True).count()
+    total_couriers = User.query.filter_by(is_courier=True).count()
+    
+    return render_template('admin/users.html', 
+                         users=users,
+                         total_users=total_users,
+                         total_admins=total_admins,
+                         total_couriers=total_couriers)
 
 @app.route('/admin/user/<int:id>/toggle_role', methods=['POST'])
 @login_required
@@ -803,12 +845,31 @@ def admin_statistics():
     total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
     total_products = Product.query.count()
     total_users = User.query.count()
+    
+    # Recent orders
+    recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
+    
+    # Low stock products
+    low_stock_products = Product.query.filter(Product.stock <= 5).all()
+    
+    # Best selling products
+    best_products = db.session.query(
+        Product.name, 
+        db.func.sum(OrderItem.quantity).label('total_sold')
+    ).join(OrderItem).group_by(Product.id).order_by(db.desc('total_sold')).limit(5).all()
 
     # Orders by district
     district_stats = db.session.query(Order.district, db.func.count(Order.id)).group_by(Order.district).all()
 
     # Orders by status
     status_stats = db.session.query(Order.status, db.func.count(Order.id)).group_by(Order.status).all()
+    
+    # Monthly revenue
+    from datetime import datetime, timedelta
+    last_30_days = datetime.utcnow() - timedelta(days=30)
+    monthly_revenue = db.session.query(db.func.sum(Order.total_amount)).filter(
+        Order.created_at >= last_30_days
+    ).scalar() or 0
 
     return render_template('admin/statistics.html', 
                          total_orders=total_orders,
@@ -816,7 +877,68 @@ def admin_statistics():
                          total_products=total_products,
                          total_users=total_users,
                          district_stats=district_stats,
-                         status_stats=status_stats)
+                         status_stats=status_stats,
+                         recent_orders=recent_orders,
+                         low_stock_products=low_stock_products,
+                         best_products=best_products,
+                         monthly_revenue=monthly_revenue)
+
+# Bulk operations for admin
+@app.route('/admin/products/bulk_update', methods=['POST'])
+@login_required
+def admin_bulk_update_products():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    action = request.form.get('action')
+    product_ids = request.form.getlist('product_ids')
+    
+    if not product_ids:
+        flash('Выберите товары для операции', 'warning')
+        return redirect(url_for('admin_products'))
+    
+    if action == 'delete':
+        Product.query.filter(Product.id.in_(product_ids)).delete(synchronize_session=False)
+        flash(f'Удалено товаров: {len(product_ids)}', 'success')
+    elif action == 'update_stock':
+        new_stock = int(request.form.get('new_stock', 0))
+        Product.query.filter(Product.id.in_(product_ids)).update(
+            {'stock': new_stock}, synchronize_session=False
+        )
+        flash(f'Обновлен склад для {len(product_ids)} товаров', 'success')
+    
+    db.session.commit()
+    return redirect(url_for('admin_products'))
+
+# Enhanced order management
+@app.route('/admin/orders/bulk_update', methods=['POST'])
+@login_required
+def admin_bulk_update_orders():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+    
+    action = request.form.get('action')
+    order_ids = request.form.getlist('order_ids')
+    
+    if not order_ids:
+        flash('Выберите заказы для операции', 'warning')
+        return redirect(url_for('admin_orders'))
+    
+    if action == 'confirm':
+        Order.query.filter(Order.id.in_(order_ids)).update(
+            {'status': 'confirmed'}, synchronize_session=False
+        )
+        flash(f'Подтверждено заказов: {len(order_ids)}', 'success')
+    elif action == 'cancel':
+        Order.query.filter(Order.id.in_(order_ids)).update(
+            {'status': 'cancelled'}, synchronize_session=False
+        )
+        flash(f'Отменено заказов: {len(order_ids)}', 'success')
+    
+    db.session.commit()
+    return redirect(url_for('admin_orders'))
 
 if __name__ == '__main__':
     with app.app_context():

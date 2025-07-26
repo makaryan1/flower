@@ -2,7 +2,12 @@
 <html lang="{{ get_language() }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
+    <meta name="description" content="{{ get_text('welcome_subtitle') }}">
+    <meta name="theme-color" content="#ff69b4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="FlowerShop">
     <title>{% block title %}{{ get_text('site_title') }}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -35,9 +40,21 @@
                 <i class="fas fa-seedling me-2"></i>
                 <span class="brand-text">FlowerShop</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <!-- Mobile cart indicator -->
+            <div class="d-lg-none">
+                <a class="nav-link cart-link text-white me-3" href="{{ url_for('cart') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if session.get('cart') %}
+                        <span class="cart-badge">{{ session.cart.values() | sum }}</span>
+                    {% endif %}
+                </a>
+            </div>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
@@ -45,37 +62,32 @@
                             <i class="fas fa-home me-1"></i>{{ get_text('home') }}
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('catalog') }}">
-                            <i class="fas fa-th-large me-1"></i>{{ get_text('catalog') }}
-                        </a>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-tags me-1"></i>{{ get_text('categories') }}
+                            <i class="fas fa-th-large me-1"></i>{{ get_text('catalog') }}
                         </a>
                         <ul class="dropdown-menu category-dropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='roses') }}">
-                                <i class="fas fa-rose text-danger me-2"></i>{{ get_text('roses') }}
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='tulips') }}">
-                                <i class="fas fa-spa text-warning me-2"></i>{{ get_text('tulips') }}
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='orchids') }}">
-                                <i class="fas fa-leaf text-info me-2"></i>{{ get_text('orchids') }}
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='bouquets') }}">
-                                <i class="fas fa-gift text-success me-2"></i>{{ get_text('bouquets') }}
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='potted') }}">
-                                <i class="fas fa-seedling text-primary me-2"></i>{{ get_text('potted') }}
-                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog') }}">{{ get_text('all_categories') }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='roses') }}"><i class="fas fa-rose me-2"></i>{{ get_text('roses') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='tulips') }}"><i class="fas fa-spa me-2"></i>{{ get_text('tulips') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='orchids') }}"><i class="fas fa-leaf me-2"></i>{{ get_text('orchids') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='bouquets') }}"><i class="fas fa-gift me-2"></i>{{ get_text('bouquets') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='potted') }}"><i class="fas fa-seedling me-2"></i>{{ get_text('potted') }}</a></li>
                         </ul>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <li class="nav-item d-none d-lg-block">
                         <a class="nav-link cart-link" href="{{ url_for('cart') }}">
+                            <i class="fas fa-shopping-bag me-1"></i>{{ get_text('cart') }}
+                            {% if session.cart %}
+                                <span class="badge bg-light text-dark cart-badge">{{ session.cart.values() | sum }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a class="nav-link" href="{{ url_for('cart') }}">
                             <i class="fas fa-shopping-bag me-1"></i>{{ get_text('cart') }}
                             {% if session.cart %}
                                 <span class="badge bg-light text-dark cart-badge">{{ session.cart.values() | sum }}</span>
