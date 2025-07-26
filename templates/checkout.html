@@ -4,99 +4,451 @@
 {% block title %}{{ get_text('checkout') }} - {{ get_text('site_title') }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">
-                <i class="fas fa-credit-card me-2"></i>{{ get_text('checkout') }}
-            </h1>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">{{ get_text('shipping_address') }}</h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        {{ form.hidden_tag() }}
-                        
-                        <div class="mb-3">
-                            {{ form.district.label(class="form-label") }}
-                            {{ form.district(class="form-select") }}
-                            {% if form.district.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.district.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+<div class="container-fluid" style="background-color: #f5f5f5; min-height: 100vh;">
+    <div class="container py-4">
+        <!-- Progress Steps -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-3">
+                        <div class="progress-steps d-flex justify-content-between align-items-center">
+                            <div class="step active">
+                                <div class="step-circle bg-primary text-white">1</div>
+                                <div class="step-label">Корзина</div>
+                            </div>
+                            <div class="step-line active"></div>
+                            <div class="step active">
+                                <div class="step-circle bg-primary text-white">2</div>
+                                <div class="step-label">Оформление</div>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class="step">
+                                <div class="step-circle bg-light text-muted">3</div>
+                                <div class="step-label">Оплата</div>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class="step">
+                                <div class="step-circle bg-light text-muted">4</div>
+                                <div class="step-label">Готово</div>
+                            </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            {{ form.shipping_address.label(class="form-label") }}
-                            {{ form.shipping_address(class="form-control", rows="3") }}
-                            {% if form.shipping_address.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.shipping_address.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.phone.label(class="form-label") }}
-                            {{ form.phone(class="form-control") }}
-                            {% if form.phone.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.phone.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-success btn-lg") }}
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">{{ get_text('order_summary') }}</h5>
-                </div>
-                <div class="card-body">
-                    {% for product_id, quantity in session.cart.items() %}
-                        {% set product = get_product(product_id) %}
-                        {% if product %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>{{ product.name }} × {{ quantity }}</span>
-                                <span>{{ product.price * quantity }}₽</span>
+
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Delivery Address -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>Адрес доставки
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" id="checkout-form">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ form.district.label(class="form-label fw-semibold") }}
+                                    {{ form.district(class="form-select") }}
+                                    {% if form.district.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.district.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    {{ form.phone.label(class="form-label fw-semibold") }}
+                                    {{ form.phone(class="form-control") }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.phone.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-12">
+                                    {{ form.shipping_address.label(class="form-label fw-semibold") }}
+                                    {{ form.shipping_address(class="form-control", rows="3") }}
+                                    {% if form.shipping_address.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.shipping_address.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Укажите точный адрес с номером дома и квартиры
+                                    </div>
+                                </div>
                             </div>
-                        {% endif %}
-                    {% endfor %}
-                    <hr>
-                    {% set total = 0 %}
-                    {% for product_id, quantity in session.cart.items() %}
-                        {% set product = get_product(product_id) %}
-                        {% if product %}
-                            {% set total = total + (product.price * quantity) %}
-                        {% endif %}
-                    {% endfor %}
-                    <div class="d-flex justify-content-between">
-                        <strong>{{ get_text('total') }}:</strong>
-                        <strong class="text-success">{{ total }}₽</strong>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Delivery Options -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-truck text-success me-2"></i>Способ доставки
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="delivery-options">
+                            <div class="delivery-option border rounded p-3 mb-3 selected" data-option="express">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <input type="radio" name="delivery" value="express" class="form-check-input me-3" checked>
+                                        <div>
+                                            <h6 class="mb-1">Экспресс доставка</h6>
+                                            <small class="text-muted">2-4 часа по городу</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-success">₽200</span>
+                                        <div class="small text-muted">Бесплатно от ₽2000</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="delivery-option border rounded p-3 mb-3" data-option="standard">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <input type="radio" name="delivery" value="standard" class="form-check-input me-3">
+                                        <div>
+                                            <h6 class="mb-1">Обычная доставка</h6>
+                                            <small class="text-muted">На следующий день</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold">₽100</span>
+                                        <div class="small text-muted">Бесплатно от ₽1500</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="delivery-option border rounded p-3" data-option="pickup">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <input type="radio" name="delivery" value="pickup" class="form-check-input me-3">
+                                        <div>
+                                            <h6 class="mb-1">Самовывоз</h6>
+                                            <small class="text-muted">ул. Руставели, 1</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-success">Бесплатно</span>
+                                        <div class="small text-muted">Готов через 1 час</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-credit-card text-primary me-2"></i>Способ оплаты
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="payment-methods">
+                            <div class="payment-option border rounded p-3 mb-3 selected" data-option="cash">
+                                <div class="d-flex align-items-center">
+                                    <input type="radio" name="payment" value="cash" class="form-check-input me-3" checked>
+                                    <i class="fas fa-money-bill-wave text-success me-3 fa-2x"></i>
+                                    <div>
+                                        <h6 class="mb-1">Наличными при получении</h6>
+                                        <small class="text-muted">Оплата курьеру</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-option border rounded p-3 mb-3" data-option="card">
+                                <div class="d-flex align-items-center">
+                                    <input type="radio" name="payment" value="card" class="form-check-input me-3">
+                                    <i class="fas fa-credit-card text-primary me-3 fa-2x"></i>
+                                    <div>
+                                        <h6 class="mb-1">Банковской картой</h6>
+                                        <small class="text-muted">Visa, MasterCard, МИР</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-option border rounded p-3" data-option="transfer">
+                                <div class="d-flex align-items-center">
+                                    <input type="radio" name="payment" value="transfer" class="form-check-input me-3">
+                                    <i class="fas fa-university text-warning me-3 fa-2x"></i>
+                                    <div>
+                                        <h6 class="mb-1">Банковский перевод</h6>
+                                        <small class="text-muted">На расчетный счет</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comment text-info me-2"></i>Комментарий к заказу (необязательно)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" rows="3" placeholder="Особые пожелания, время доставки, инструкции для курьера..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="sticky-top">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-gradient text-white" style="background: linear-gradient(45deg, #FF69B4, #FF1493);">
+                            <h5 class="mb-0">
+                                <i class="fas fa-receipt me-2"></i>Ваш заказ
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Order Items -->
+                            <div class="order-items mb-3">
+                                {% for product_id, quantity in session.cart.items() %}
+                                    {% set product = get_product(product_id) %}
+                                    {% if product %}
+                                        <div class="order-item d-flex align-items-center mb-3 pb-3 border-bottom">
+                                            <img src="{{ product.image_url or 'https://via.placeholder.com/60x60/FF69B4/ffffff?text=' + get_text(product.category) }}" 
+                                                 class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 small">{{ product.name }}</h6>
+                                                <div class="text-muted small">{{ get_text(product.category) }}</div>
+                                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                                    <span class="text-muted small">× {{ quantity }}</span>
+                                                    <span class="fw-bold text-danger">₽{{ "%.0f"|format(product.price * quantity) }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Pricing Breakdown -->
+                            <div class="pricing-breakdown">
+                                {% set total = 0 %}
+                                {% for product_id, quantity in session.cart.items() %}
+                                    {% set product = get_product(product_id) %}
+                                    {% if product %}
+                                        {% set total = total + (product.price * quantity) %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Товары:</span>
+                                    <span>₽{{ "%.0f"|format(total) }}</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Скидка:</span>
+                                    <span class="text-success">-₽{{ "%.0f"|format(total * 0.1) }}</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Доставка:</span>
+                                    <span id="delivery-price">₽200</span>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="fw-bold fs-5">К оплате:</span>
+                                    <span class="fw-bold fs-4 text-danger" id="final-price">₽{{ "%.0f"|format(total * 0.9 + 200) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Benefits -->
+                            <div class="benefits mb-4">
+                                <div class="benefit-item d-flex align-items-center mb-2">
+                                    <i class="fas fa-shield-alt text-success me-2"></i>
+                                    <small>Защита покупателя</small>
+                                </div>
+                                <div class="benefit-item d-flex align-items-center mb-2">
+                                    <i class="fas fa-undo text-primary me-2"></i>
+                                    <small>Возврат в течение 7 дней</small>
+                                </div>
+                                <div class="benefit-item d-flex align-items-center">
+                                    <i class="fas fa-headset text-info me-2"></i>
+                                    <small>Поддержка 24/7</small>
+                                </div>
+                            </div>
+
+                            <!-- Place Order Button -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" form="checkout-form" class="btn btn-lg text-white fw-semibold" 
+                                        style="background: linear-gradient(45deg, #FF69B4, #FF1493);">
+                                    <i class="fas fa-shopping-bag me-2"></i>Оформить заказ
+                                </button>
+                                <a href="{{ url_for('cart') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Вернуться в корзину
+                                </a>
+                            </div>
+
+                            <!-- Security Info -->
+                            <div class="security-info mt-3 p-3 bg-light rounded">
+                                <div class="text-center">
+                                    <i class="fas fa-lock text-success me-2"></i>
+                                    <small class="text-muted">Ваши данные защищены SSL-шифрованием</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help -->
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-body text-center">
+                            <h6 class="mb-3">
+                                <i class="fas fa-question-circle text-info me-2"></i>Нужна помощь?
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-phone me-2"></i>+7 (123) 456-78-90
+                                </button>
+                                <button class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-envelope me-2"></i>Написать в чат
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.progress-steps {
+    position: relative;
+}
+
+.step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    font-weight: bold;
+}
+
+.step-line {
+    height: 2px;
+    background-color: #e9ecef;
+    flex-grow: 1;
+    margin: 20px 10px 0;
+}
+
+.step-line.active {
+    background-color: #0d6efd;
+}
+
+.delivery-option, .payment-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delivery-option:hover, .payment-option:hover {
+    border-color: #0d6efd !important;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+}
+
+.delivery-option.selected, .payment-option.selected {
+    border-color: #0d6efd !important;
+    background-color: #f8f9ff;
+}
+
+.order-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+</style>
+
+<script>
+// Delivery option selection
+document.querySelectorAll('.delivery-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input[type="radio"]').checked = true;
+        
+        // Update delivery price
+        const deliveryPrice = document.getElementById('delivery-price');
+        const finalPrice = document.getElementById('final-price');
+        let price = 0;
+        
+        switch(this.dataset.option) {
+            case 'express':
+                price = 200;
+                break;
+            case 'standard':
+                price = 100;
+                break;
+            case 'pickup':
+                price = 0;
+                break;
+        }
+        
+        deliveryPrice.textContent = price === 0 ? 'Бесплатно' : '₽' + price;
+        // Recalculate final price (simplified)
+        const basePrice = {{ total * 0.9 }};
+        document.getElementById('final-price').textContent = '₽' + Math.round(basePrice + price);
+    });
+});
+
+// Payment option selection
+document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input[type="radio"]').checked = true;
+    });
+});
+
+// Form validation
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
+    const district = document.querySelector('select[name="district"]').value;
+    const address = document.querySelector('textarea[name="shipping_address"]').value;
+    const phone = document.querySelector('input[name="phone"]').value;
+    
+    if (!district || !address.trim() || !phone.trim()) {
+        e.preventDefault();
+        alert('Пожалуйста, заполните все обязательные поля');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Оформляем заказ...';
+});
+</script>
 {% endblock %}

@@ -4,150 +4,520 @@
 {% block title %}{{ get_text('catalog') }} - {{ get_text('site_title') }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1>
-                <i class="fas fa-th-large me-2"></i>{{ get_text('catalog') }}
-                {% if category %}
-                    - {{ get_text(category) }}
-                {% endif %}
-            </h1>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="btn-group d-none d-md-flex" role="group">
-                <a href="{{ url_for('catalog') }}" 
-                   class="btn {{ 'btn-success' if not category else 'btn-outline-success' }}">
-                    {{ get_text('all_categories') if get_text('all_categories') != 'all_categories' else 'Все категории' }}
-                </a>
-                <a href="{{ url_for('catalog', category='roses') }}" 
-                   class="btn {{ 'btn-success' if category == 'roses' else 'btn-outline-success' }}">
-                    <i class="fas fa-rose me-1"></i>{{ get_text('roses') }}
-                </a>
-                <a href="{{ url_for('catalog', category='tulips') }}" 
-                   class="btn {{ 'btn-success' if category == 'tulips' else 'btn-outline-success' }}">
-                    <i class="fas fa-spa me-1"></i>{{ get_text('tulips') }}
-                </a>
-                <a href="{{ url_for('catalog', category='orchids') }}" 
-                   class="btn {{ 'btn-success' if category == 'orchids' else 'btn-outline-success' }}">
-                    <i class="fas fa-leaf me-1"></i>{{ get_text('orchids') }}
-                </a>
-                <a href="{{ url_for('catalog', category='bouquets') }}" 
-                   class="btn {{ 'btn-success' if category == 'bouquets' else 'btn-outline-success' }}">
-                    <i class="fas fa-gift me-1"></i>{{ get_text('bouquets') }}
-                </a>
-                <a href="{{ url_for('catalog', category='potted') }}" 
-                   class="btn {{ 'btn-success' if category == 'potted' else 'btn-outline-success' }}">
-                    <i class="fas fa-seedling me-1"></i>{{ get_text('potted') }}
-                </a>
-            </div>
-            
-            <!-- Mobile category buttons -->
-            <div class="d-md-none">
-                <div class="row g-2">
-                    <div class="col-6">
-                        <a href="{{ url_for('catalog') }}" 
-                           class="btn {{ 'btn-success' if not category else 'btn-outline-success' }} w-100">
-                            {{ get_text('all_categories') if get_text('all_categories') != 'all_categories' else 'Все' }}
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('catalog', category='roses') }}" 
-                           class="btn {{ 'btn-success' if category == 'roses' else 'btn-outline-success' }} w-100">
-                            <i class="fas fa-rose me-1"></i>{{ get_text('roses') }}
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('catalog', category='tulips') }}" 
-                           class="btn {{ 'btn-success' if category == 'tulips' else 'btn-outline-success' }} w-100">
-                            <i class="fas fa-spa me-1"></i>{{ get_text('tulips') }}
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('catalog', category='orchids') }}" 
-                           class="btn {{ 'btn-success' if category == 'orchids' else 'btn-outline-success' }} w-100">
-                            <i class="fas fa-leaf me-1"></i>{{ get_text('orchids') }}
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('catalog', category='bouquets') }}" 
-                           class="btn {{ 'btn-success' if category == 'bouquets' else 'btn-outline-success' }} w-100">
-                            <i class="fas fa-gift me-1"></i>{{ get_text('bouquets') }}
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('catalog', category='potted') }}" 
-                           class="btn {{ 'btn-success' if category == 'potted' else 'btn-outline-success' }} w-100">
-                            <i class="fas fa-seedling me-1"></i>{{ get_text('potted') }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for product in products %}
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <div class="position-relative">
-                    <img src="{{ product.image_url or 'https://via.placeholder.com/300x300/4CAF50/ffffff?text=' + get_text(product.category) }}" 
-                         class="card-img-top" alt="{{ product.name }}">
-                    <span class="badge bg-success position-absolute top-0 end-0 m-2">
-                        {{ get_text(product.category) }}
-                    </span>
-                    {% if product.stock <= 0 %}
-                        <div class="position-absolute top-50 start-50 translate-middle">
-                            <span class="badge bg-danger fs-6">{{ get_text('out_of_stock') }}</span>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text flex-grow-1">{{ product.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="price">{{ product.price }}₽</span>
-                        <small class="text-muted">
-                            <i class="fas fa-box me-1"></i>
-                            {% if product.stock > 0 %}
-                                {{ get_text('in_stock') }}: {{ product.stock }}
+<div class="container-fluid" style="background-color: #f5f5f5;">
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-1" style="color: #333; font-weight: 600;">
+                            {% if category %}
+                                {{ get_text(category) }}
                             {% else %}
-                                {{ get_text('out_of_stock') }}
+                                {{ get_text('catalog') }}
                             {% endif %}
-                        </small>
+                        </h1>
+                        <p class="text-muted mb-0">{{ products|length }} товар(ов) найдено</p>
                     </div>
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('product_detail', id=product.id) }}" class="btn btn-outline-success">
-                            <i class="fas fa-info-circle me-2"></i>{{ get_text('details') if get_text('details') != 'details' else 'Подробнее' }}
-                        </a>
-                        {% if product.stock > 0 %}
-                            <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success">
-                                <i class="fas fa-shopping-bag me-2"></i>{{ get_text('add_to_cart') }}
-                            </a>
-                        {% else %}
-                            <button class="btn btn-secondary" disabled>
-                                <i class="fas fa-times me-2"></i>{{ get_text('out_of_stock') }}
+                    <div class="d-flex gap-2">
+                        <select class="form-select" id="sortSelect" style="width: auto;">
+                            <option value="default">По умолчанию</option>
+                            <option value="price_asc">Цена по возрастанию</option>
+                            <option value="price_desc">Цена по убыванию</option>
+                            <option value="name_asc">По названию</option>
+                            <option value="rating">По рейтингу</option>
+                        </select>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="gridView">
+                                <i class="fas fa-th"></i>
                             </button>
-                        {% endif %}
+                            <button type="button" class="btn btn-outline-secondary" id="listView">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
 
-    {% if not products %}
-        <div class="text-center py-5">
-            <i class="fas fa-search fa-5x text-muted mb-4"></i>
-            <h2>{{ get_text('no_products') if get_text('no_products') != 'no_products' else 'Товары не найдены' }}</h2>
-            <p class="lead text-muted">{{ get_text('no_products_text') if get_text('no_products_text') != 'no_products_text' else 'В данной категории пока нет товаров' }}</p>
-            <a href="{{ url_for('catalog') }}" class="btn btn-success">
-                <i class="fas fa-arrow-left me-2"></i>{{ get_text('back_to_catalog') if get_text('back_to_catalog') != 'back_to_catalog' else 'Вернуться к каталогу' }}
-            </a>
+        <div class="row g-4">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3">
+                <div class="filters-sidebar">
+                    <!-- Categories -->
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-filter me-2"></i>Категории
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('catalog') }}" 
+                                       class="text-decoration-none d-flex justify-content-between align-items-center {% if not category %}text-primary fw-semibold{% endif %}">
+                                        <span>{{ get_text('all_categories') }}</span>
+                                        <span class="badge bg-light text-dark">{{ Product.query.count() }}</span>
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('catalog', category='roses') }}" 
+                                       class="text-decoration-none d-flex justify-content-between align-items-center {% if category == 'roses' %}text-primary fw-semibold{% endif %}">
+                                        <span><i class="fas fa-rose me-2 text-danger"></i>{{ get_text('roses') }}</span>
+                                        <span class="badge bg-light text-dark">{{ Product.query.filter_by(category='roses').count() }}</span>
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('catalog', category='tulips') }}" 
+                                       class="text-decoration-none d-flex justify-content-between align-items-center {% if category == 'tulips' %}text-primary fw-semibold{% endif %}">
+                                        <span><i class="fas fa-seedling me-2 text-success"></i>{{ get_text('tulips') }}</span>
+                                        <span class="badge bg-light text-dark">{{ Product.query.filter_by(category='tulips').count() }}</span>
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('catalog', category='orchids') }}" 
+                                       class="text-decoration-none d-flex justify-content-between align-items-center {% if category == 'orchids' %}text-primary fw-semibold{% endif %}">
+                                        <span><i class="fas fa-leaf me-2 text-info"></i>{{ get_text('orchids') }}</span>
+                                        <span class="badge bg-light text-dark">{{ Product.query.filter_by(category='orchids').count() }}</span>
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('catalog', category='bouquets') }}" 
+                                       class="text-decoration-none d-flex justify-content-between align-items-center {% if category == 'bouquets' %}text-primary fw-semibold{% endif %}">
+                                        <span><i class="fas fa-gift me-2 text-primary"></i>{{ get_text('bouquets') }}</span>
+                                        <span class="badge bg-light text-dark">{{ Product.query.filter_by(category='bouquets').count() }}</span>
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="{{ url_for('catalog', category='potted') }}" 
+                                       class="text-decoration-none d-flex justify-content-between align-items-center {% if category == 'potted' %}text-primary fw-semibold{% endif %}">
+                                        <span><i class="fas fa-seedling me-2 text-warning"></i>{{ get_text('potted') }}</span>
+                                        <span class="badge bg-light text-dark">{{ Product.query.filter_by(category='potted').count() }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-ruble-sign me-2"></i>Цена
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="price-filter">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" placeholder="От" id="priceFrom">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" placeholder="До" id="priceTo">
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary w-100" onclick="applyPriceFilter()">
+                                    Применить
+                                </button>
+                            </div>
+                            <div class="price-ranges mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="price1">
+                                    <label class="form-check-label small" for="price1">До ₽1000</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="price2">
+                                    <label class="form-check-label small" for="price2">₽1000 - ₽3000</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="price3">
+                                    <label class="form-check-label small" for="price3">₽3000 - ₽5000</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="price4">
+                                    <label class="form-check-label small" for="price4">Свыше ₽5000</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Availability Filter -->
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-check-circle me-2"></i>Наличие
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inStock" checked>
+                                <label class="form-check-label" for="inStock">В наличии</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="outOfStock">
+                                <label class="form-check-label" for="outOfStock">Нет в наличии</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-star me-2"></i>Рейтинг
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="rating-filter">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rating5">
+                                    <label class="form-check-label d-flex align-items-center" for="rating5">
+                                        <div class="stars text-warning me-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <span class="small">5 звезд</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rating4">
+                                    <label class="form-check-label d-flex align-items-center" for="rating4">
+                                        <div class="stars text-warning me-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                        </div>
+                                        <span class="small">4+ звезд</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rating3">
+                                    <label class="form-check-label d-flex align-items-center" for="rating3">
+                                        <div class="stars text-warning me-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                        </div>
+                                        <span class="small">3+ звезд</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                {% if products %}
+                    <div class="products-grid" id="productsGrid">
+                        <div class="row g-3" id="productsList">
+                            {% for product in products %}
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 product-item" 
+                                 data-price="{{ product.price }}"
+                                 data-name="{{ product.name }}"
+                                 data-category="{{ product.category }}">
+                                <div class="card border-0 shadow-sm h-100 product-card">
+                                    <div class="position-relative">
+                                        <img src="{{ product.image_url or 'https://via.placeholder.com/300x300/FF69B4/ffffff?text=' + get_text(product.category) }}" 
+                                             class="card-img-top" alt="{{ product.name }}" 
+                                             style="height: 200px; object-fit: cover;">
+                                        
+                                        <!-- Badges -->
+                                        <div class="position-absolute top-0 start-0 m-2">
+                                            <span class="badge bg-success">{{ get_text(product.category) }}</span>
+                                        </div>
+                                        
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            {% if product.stock > 0 %}
+                                                <span class="badge bg-danger">-20%</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ get_text('out_of_stock') }}</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Quick Actions -->
+                                        <div class="position-absolute bottom-0 end-0 m-2 quick-actions">
+                                            <button class="btn btn-sm btn-light rounded-circle me-1" title="В избранное">
+                                                <i class="fas fa-heart"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-light rounded-circle" title="Быстрый просмотр">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+
+                                        {% if product.stock <= 0 %}
+                                            <div class="position-absolute top-50 start-50 translate-middle">
+                                                <span class="badge bg-dark fs-6 px-3 py-2">{{ get_text('out_of_stock') }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title mb-2">{{ product.name }}</h6>
+                                        
+                                        <!-- Rating -->
+                                        <div class="rating mb-2">
+                                            <div class="stars text-warning small">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="text-muted small ms-1">({{ range(10, 500) | random }})</span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="price-section mb-3">
+                                            <div class="d-flex align-items-baseline">
+                                                <span class="price text-danger fw-bold fs-5">₽{{ "%.0f"|format(product.price) }}</span>
+                                                <span class="original-price text-muted small text-decoration-line-through ms-2">
+                                                    ₽{{ "%.0f"|format(product.price * 1.25) }}
+                                                </span>
+                                            </div>
+                                            <small class="text-success">
+                                                <i class="fas fa-shipping-fast me-1"></i>Быстрая доставка
+                                            </small>
+                                        </div>
+
+                                        <!-- Stock Info -->
+                                        <div class="stock-info mb-3">
+                                            {% if product.stock > 0 %}
+                                                <small class="text-muted">Осталось: {{ product.stock }} шт.</small>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="mt-auto">
+                                            <div class="d-grid gap-2">
+                                                <a href="{{ url_for('product_detail', id=product.id) }}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-info-circle me-1"></i>{{ get_text('details') }}
+                                                </a>
+                                                {% if product.stock > 0 %}
+                                                    <button onclick="addToCart({{ product.id }})" class="btn text-white btn-sm fw-semibold" 
+                                                            style="background: linear-gradient(45deg, #FF69B4, #FF1493);">
+                                                        <i class="fas fa-shopping-cart me-1"></i>{{ get_text('add_to_cart') }}
+                                                    </button>
+                                                {% else %}
+                                                    <button class="btn btn-secondary btn-sm" disabled>
+                                                        <i class="fas fa-times me-1"></i>{{ get_text('out_of_stock') }}
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <nav aria-label="Products pagination">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Предыдущая</span>
+                                    </li>
+                                    <li class="page-item active">
+                                        <span class="page-link">1</span>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">2</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">3</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Следующая</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-search fa-5x text-muted mb-4"></i>
+                            <h3>{{ get_text('no_products') }}</h3>
+                            <p class="text-muted mb-4">{{ get_text('no_products_text') }}</p>
+                            <a href="{{ url_for('catalog') }}" class="btn text-white" 
+                               style="background: linear-gradient(45deg, #FF69B4, #FF1493);">
+                                <i class="fas fa-arrow-left me-2"></i>{{ get_text('back_to_catalog') }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    {% endif %}
+    </div>
 </div>
+
+<script>
+// Add to cart function
+function addToCart(productId) {
+    fetch(`{{ url_for('add_to_cart', product_id=0) }}`.replace('0', productId))
+        .then(() => {
+            // Show success notification
+            showNotification('Товар добавлен в корзину!', 'success');
+            // Update cart counter
+            updateCartCounter();
+        })
+        .catch(error => {
+            showNotification('Ошибка при добавлении товара', 'error');
+        });
+}
+
+// Show notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Update cart counter
+function updateCartCounter() {
+    // This would typically fetch the current cart count from the server
+    const cartBadges = document.querySelectorAll('.cart-badge');
+    cartBadges.forEach(badge => {
+        const currentCount = parseInt(badge.textContent) || 0;
+        badge.textContent = currentCount + 1;
+    });
+}
+
+// Sorting functionality
+document.getElementById('sortSelect').addEventListener('change', function() {
+    const sortValue = this.value;
+    const productsList = document.getElementById('productsList');
+    const products = Array.from(productsList.children);
+    
+    products.sort((a, b) => {
+        switch(sortValue) {
+            case 'price_asc':
+                return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+            case 'price_desc':
+                return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+            case 'name_asc':
+                return a.dataset.name.localeCompare(b.dataset.name);
+            default:
+                return 0;
+        }
+    });
+    
+    products.forEach(product => productsList.appendChild(product));
+});
+
+// View toggle
+document.getElementById('gridView').addEventListener('click', function() {
+    document.getElementById('listView').classList.remove('active');
+    this.classList.add('active');
+    document.getElementById('productsList').className = 'row g-3';
+    document.querySelectorAll('.product-item').forEach(item => {
+        item.className = 'col-xl-3 col-lg-4 col-md-6 col-sm-6 product-item';
+    });
+});
+
+document.getElementById('listView').addEventListener('click', function() {
+    document.getElementById('gridView').classList.remove('active');
+    this.classList.add('active');
+    document.getElementById('productsList').className = 'row g-2';
+    document.querySelectorAll('.product-item').forEach(item => {
+        item.className = 'col-12 product-item';
+    });
+});
+
+// Price filter
+function applyPriceFilter() {
+    const priceFrom = document.getElementById('priceFrom').value;
+    const priceTo = document.getElementById('priceTo').value;
+    const products = document.querySelectorAll('.product-item');
+    
+    products.forEach(product => {
+        const price = parseFloat(product.dataset.price);
+        const show = (!priceFrom || price >= priceFrom) && (!priceTo || price <= priceTo);
+        product.style.display = show ? 'block' : 'none';
+    });
+}
+
+// Product card hover effects
+document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+        this.style.transition = 'transform 0.3s ease';
+        this.querySelector('.quick-actions').style.opacity = '1';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.querySelector('.quick-actions').style.opacity = '0';
+    });
+});
+
+// Initialize quick actions opacity
+document.querySelectorAll('.quick-actions').forEach(actions => {
+    actions.style.opacity = '0';
+    actions.style.transition = 'opacity 0.3s ease';
+});
+</script>
+
+<style>
+.product-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.quick-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.filters-sidebar .card {
+    border-radius: 12px;
+}
+
+.price-ranges .form-check {
+    margin-bottom: 8px;
+}
+
+.rating-filter .form-check {
+    margin-bottom: 8px;
+}
+
+.stars {
+    font-size: 14px;
+}
+
+.empty-state i {
+    opacity: 0.3;
+}
+
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 2px;
+}
+</style>
 {% endblock %}

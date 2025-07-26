@@ -4,203 +4,290 @@
 {% block title %}{{ product.name }} - {{ get_text('site_title') }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-12 mb-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">{{ get_text('home') }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('catalog') }}">{{ get_text('catalog') }}</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('catalog', category=product.category) }}">{{ get_text(product.category) }}</a></li>
-                    <li class="breadcrumb-item active">{{ product.name }}</li>
-                </ol>
-            </nav>
-        </div>
+<div class="container-fluid px-0">
+    <!-- Breadcrumb -->
+    <div class="container mt-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-decoration-none">{{ get_text('home') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('catalog') }}" class="text-decoration-none">{{ get_text('catalog') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('catalog', category=product.category) }}" class="text-decoration-none">{{ get_text(product.category) }}</a></li>
+                <li class="breadcrumb-item active text-muted">{{ product.name }}</li>
+            </ol>
+        </nav>
     </div>
 
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0">
-                <img src="{{ product.image_url or 'https://via.placeholder.com/500x500/4CAF50/ffffff?text=' + get_text(product.category) }}" 
-                     class="card-img-top rounded" alt="{{ product.name }}" style="height: 400px; object-fit: cover;">
+    <!-- Product Details -->
+    <div class="container mt-4">
+        <div class="row g-4">
+            <!-- Product Images -->
+            <div class="col-lg-6">
+                <div class="product-gallery">
+                    <div class="main-image mb-3">
+                        <img src="{{ product.image_url or 'https://via.placeholder.com/600x600/FF69B4/ffffff?text=' + get_text(product.category) }}" 
+                             class="img-fluid rounded-3 shadow-sm w-100" alt="{{ product.name }}" 
+                             style="height: 500px; object-fit: cover; border: 2px solid #f0f0f0;">
+                        {% if product.stock <= 0 %}
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <span class="badge bg-danger fs-3 px-4 py-2">{{ get_text('out_of_stock') }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- Thumbnail gallery (placeholder for future enhancement) -->
+                    <div class="d-flex gap-2">
+                        <img src="{{ product.image_url or 'https://via.placeholder.com/100x100/FF69B4/ffffff?text=1' }}" 
+                             class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                        <img src="{{ product.image_url or 'https://via.placeholder.com/100x100/FF69B4/ffffff?text=2' }}" 
+                             class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                        <img src="{{ product.image_url or 'https://via.placeholder.com/100x100/FF69B4/ffffff?text=3' }}" 
+                             class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        <div class="col-lg-6">
-            <div class="card border-0">
-                <div class="card-body">
-                    <span class="badge bg-success mb-2">{{ get_text(product.category) }}</span>
-                    <h1 class="card-title">{{ product.name }}</h1>
-                    <p class="lead">{{ product.description }}</p>
-                    
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <div class="price display-6 text-success">{{ product.price }}₽</div>
+
+            <!-- Product Info -->
+            <div class="col-lg-6">
+                <div class="product-info">
+                    <!-- Category Badge -->
+                    <div class="mb-2">
+                        <span class="badge bg-gradient text-white px-3 py-2" style="background: linear-gradient(45deg, #FF69B4, #FF1493);">
+                            <i class="fas fa-tag me-1"></i>{{ get_text(product.category) }}
+                        </span>
+                    </div>
+
+                    <!-- Product Title -->
+                    <h1 class="product-title mb-3" style="font-size: 2rem; font-weight: 600; color: #333;">
+                        {{ product.name }}
+                    </h1>
+
+                    <!-- Rating Section (placeholder) -->
+                    <div class="rating-section mb-3 d-flex align-items-center">
+                        <div class="stars text-warning me-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
                         </div>
-                        <div class="col-6 text-end">
-                            <div class="stock-info">
-                                {% if product.stock > 0 %}
-                                    <span class="badge bg-success fs-6">
-                                        <i class="fas fa-check me-1"></i>{{ get_text('in_stock') }}: {{ product.stock }}
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-danger fs-6">
-                                        <i class="fas fa-times me-1"></i>{{ get_text('out_of_stock') }}
-                                    </span>
-                                {% endif %}
+                        <span class="text-muted">4.5 (127 отзывов)</span>
+                        <span class="text-muted ms-3">| 250+ заказов</span>
+                    </div>
+
+                    <!-- Price Section -->
+                    <div class="price-section mb-4 p-3 bg-light rounded-3">
+                        <div class="d-flex align-items-baseline">
+                            <span class="current-price text-danger fw-bold" style="font-size: 2.5rem;">
+                                ₽{{ "%.0f"|format(product.price) }}
+                            </span>
+                            <span class="original-price text-muted text-decoration-line-through ms-2" style="font-size: 1.2rem;">
+                                ₽{{ "%.0f"|format(product.price * 1.3) }}
+                            </span>
+                            <span class="discount-badge bg-danger text-white px-2 py-1 rounded ms-2 small">
+                                -23%
+                            </span>
+                        </div>
+                        <div class="price-info mt-2">
+                            <small class="text-success">
+                                <i class="fas fa-shipping-fast me-1"></i>Бесплатная доставка при заказе от ₽2000
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Stock Info -->
+                    <div class="stock-section mb-4">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    {% if product.stock > 0 %}
+                                        <span class="badge bg-success fs-6 px-3 py-2">
+                                            <i class="fas fa-check-circle me-1"></i>{{ get_text('in_stock') }}
+                                        </span>
+                                        <span class="ms-2 text-muted">{{ product.stock }} шт.</span>
+                                    {% else %}
+                                        <span class="badge bg-danger fs-6 px-3 py-2">
+                                            <i class="fas fa-times-circle me-1"></i>{{ get_text('out_of_stock') }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-end">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>Быстрая доставка 2-4 часа
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="d-grid gap-2">
+
+                    <!-- Quantity Selector -->
+                    {% if product.stock > 0 %}
+                    <div class="quantity-section mb-4">
+                        <label class="form-label fw-semibold">Количество:</label>
+                        <div class="d-flex align-items-center">
+                            <div class="input-group" style="width: 150px;">
+                                <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">-</button>
+                                <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="{{ product.stock }}">
+                                <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">+</button>
+                            </div>
+                            <span class="ms-3 text-muted small">Максимум: {{ product.stock }} шт.</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons mb-4">
                         {% if product.stock > 0 %}
-                            <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success btn-lg">
-                                <i class="fas fa-shopping-bag me-2"></i>{{ get_text('add_to_cart') }}
-                            </a>
+                            <div class="d-grid gap-3">
+                                <button class="btn btn-lg text-white fw-semibold" 
+                                        style="background: linear-gradient(45deg, #FF69B4, #FF1493); border: none;"
+                                        onclick="addToCart({{ product.id }})">
+                                    <i class="fas fa-shopping-cart me-2"></i>{{ get_text('add_to_cart') }}
+                                </button>
+                                <button class="btn btn-lg btn-outline-danger" onclick="buyNow({{ product.id }})">
+                                    <i class="fas fa-bolt me-2"></i>Купить сейчас
+                                </button>
+                            </div>
                         {% else %}
-                            <button class="btn btn-secondary btn-lg" disabled>
+                            <button class="btn btn-lg btn-secondary w-100" disabled>
                                 <i class="fas fa-times me-2"></i>{{ get_text('out_of_stock') }}
                             </button>
                         {% endif %}
-                        <a href="{{ url_for('catalog') }}" class="btn btn-outline-success">
-                            <i class="fas fa-arrow-left me-2"></i>{{ get_text('back_to_catalog') if get_text('back_to_catalog') != 'back_to_catalog' else 'Вернуться к каталогу' }}
-                        </a>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mt-5">
-        <div class="col-12">
-            <h3>{{ get_text('related_products') if get_text('related_products') != 'related_products' else 'Похожие товары' }}</h3>
-            <div class="row">
-                {% for related_product in Product.query.filter_by(category=product.category).filter(Product.id != product.id).limit(4).all() %}
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                    <div class="card h-100">
-                        <img src="{{ related_product.image_url or 'https://via.placeholder.com/300x200/4CAF50/ffffff?text=' + get_text(related_product.category) }}" 
-                             class="card-img-top" alt="{{ related_product.name }}" style="height: 150px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title">{{ related_product.name }}</h6>
-                            <p class="card-text flex-grow-1 small">{{ related_product.description[:50] }}...</p>
-                            <div class="text-center">
-                                <div class="price text-success mb-2">{{ related_product.price }}₽</div>
-                                <a href="{{ url_for('product_detail', id=related_product.id) }}" class="btn btn-sm btn-outline-success">
-                                    {{ get_text('view') if get_text('view') != 'view' else 'Посмотреть' }}
-                                </a>
+
+                    <!-- Additional Info -->
+                    <div class="additional-info">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="info-item p-3 bg-light rounded text-center">
+                                    <i class="fas fa-shield-alt text-success mb-2"></i>
+                                    <div class="small">Гарантия свежести</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-item p-3 bg-light rounded text-center">
+                                    <i class="fas fa-undo text-primary mb-2"></i>
+                                    <div class="small">Возврат 7 дней</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
-{% extends "base.html" %}
 
-{% block title %}{{ product.name }} - {{ get_text('site_title') }}{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">{{ get_text('home') }}</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('catalog') }}">{{ get_text('catalog') }}</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('catalog', category=product.category) }}">{{ get_text(product.category) }}</a></li>
-            <li class="breadcrumb-item active">{{ product.name }}</li>
-        </ol>
-    </nav>
-
-    <div class="row">
-        <div class="col-lg-6 col-md-6 mb-4">
-            <div class="card border-0 shadow-lg">
-                <img src="{{ product.image_url or 'https://via.placeholder.com/500x500/4CAF50/ffffff?text=' + get_text(product.category) }}" 
-                     class="card-img-top" alt="{{ product.name }}" style="height: 400px; object-fit: cover;">
-                {% if product.stock <= 0 %}
-                    <div class="position-absolute top-50 start-50 translate-middle">
-                        <span class="badge bg-danger fs-4">{{ get_text('out_of_stock') }}</span>
+        <!-- Product Description -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <ul class="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                                    {{ get_text('description') }}
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                                    Отзывы (127)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery" type="button" role="tab">
+                                    Доставка
+                                </button>
+                            </li>
+                        </ul>
                     </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="col-lg-6 col-md-6">
-            <div class="product-info">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <span class="badge bg-success fs-6">{{ get_text(product.category) }}</span>
-                    <div class="text-end">
-                        <small class="text-muted d-block">{{ get_text('in_stock') if product.stock > 0 else get_text('out_of_stock') }}</small>
-                        {% if product.stock > 0 %}
-                            <small class="text-success"><strong>{{ product.stock }} {{ get_text('items') if get_text('items') != 'items' else 'шт.' }}</strong></small>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <h1 class="h2 mb-3">{{ product.name }}</h1>
-                
-                <div class="price-section mb-4">
-                    <span class="price display-5">{{ product.price }}₽</span>
-                    <small class="text-muted ms-2">{{ get_text('per_item') if get_text('per_item') != 'per_item' else 'за шт.' }}</small>
-                </div>
-                
-                <div class="description mb-4">
-                    <h5>{{ get_text('description') }}</h5>
-                    <p class="lead">{{ product.description or get_text('no_description') if get_text('no_description') != 'no_description' else 'Описание отсутствует' }}</p>
-                </div>
-                
-                <div class="action-buttons d-grid gap-3">
-                    {% if product.stock > 0 %}
-                        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success btn-lg">
-                            <i class="fas fa-shopping-cart me-2"></i>{{ get_text('add_to_cart') }}
-                        </a>
-                        <div class="row g-2">
-                            <div class="col">
-                                <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-arrow-left me-2"></i>{{ get_text('continue_shopping') }}
-                                </a>
+                    <div class="card-body">
+                        <div class="tab-content" id="productTabsContent">
+                            <div class="tab-pane fade show active" id="description" role="tabpanel">
+                                <p class="lead">{{ product.description or 'Прекрасные свежие цветы высочайшего качества.' }}</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Свежие цветы прямо с плантации</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Профессиональная упаковка</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Быстрая доставка по Ахалцихе</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Гарантия свежести 7 дней</li>
+                                </ul>
                             </div>
-                            <div class="col">
-                                <a href="{{ url_for('cart') }}" class="btn btn-outline-primary w-100">
-                                    <i class="fas fa-shopping-bag me-2"></i>{{ get_text('view_cart') if get_text('view_cart') != 'view_cart' else 'Корзина' }}
-                                </a>
+                            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                <div class="review-item mb-3 p-3 bg-light rounded">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>Анна К.</strong>
+                                        <div class="stars text-warning">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">Прекрасные цветы! Очень свежие и красивые. Доставили быстро.</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="delivery" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Время доставки:</h6>
+                                        <ul class="list-unstyled">
+                                            <li>• Центр города: 2-4 часа</li>
+                                            <li>• Пригород: 4-6 часов</li>
+                                            <li>• Соседние села: 1 день</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Стоимость доставки:</h6>
+                                        <ul class="list-unstyled">
+                                            <li>• От ₽2000 - бесплатно</li>
+                                            <li>• До ₽2000 - ₽200</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    {% else %}
-                        <button class="btn btn-secondary btn-lg" disabled>
-                            <i class="fas fa-times me-2"></i>{{ get_text('out_of_stock') }}
-                        </button>
-                        <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>{{ get_text('back_to_catalog') }}
-                        </a>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Related Products -->
-    <div class="mt-5">
-        <h3 class="mb-4">{{ get_text('related_products') if get_text('related_products') != 'related_products' else 'Похожие товары' }}</h3>
-        <div class="row">
-            {% for related_product in Product.query.filter_by(category=product.category).filter(Product.id != product.id).limit(4).all() %}
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <img src="{{ related_product.image_url or 'https://via.placeholder.com/300x300/4CAF50/ffffff?text=' + get_text(related_product.category) }}" 
-                             class="card-img-top" alt="{{ related_product.name }}" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title">{{ related_product.name }}</h6>
-                            <p class="price mb-3">{{ related_product.price }}₽</p>
-                            <div class="mt-auto">
-                                <a href="{{ url_for('product_detail', id=related_product.id) }}" class="btn btn-outline-success btn-sm w-100">
+        <!-- Related Products -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4 fw-semibold">{{ get_text('related_products') }}</h3>
+                <div class="row g-3">
+                    {% for related_product in Product.query.filter_by(category=product.category).filter(Product.id != product.id).limit(6).all() %}
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                        <div class="card border-0 shadow-sm h-100 product-card">
+                            <div class="position-relative">
+                                <img src="{{ related_product.image_url or 'https://via.placeholder.com/200x200/FF69B4/ffffff?text=' + get_text(related_product.category) }}" 
+                                     class="card-img-top" alt="{{ related_product.name }}" style="height: 150px; object-fit: cover;">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-danger">-20%</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <h6 class="card-title small mb-1">{{ related_product.name }}</h6>
+                                <div class="price-info">
+                                    <span class="text-danger fw-bold">₽{{ "%.0f"|format(related_product.price) }}</span>
+                                    <small class="text-muted text-decoration-line-through ms-1">₽{{ "%.0f"|format(related_product.price * 1.2) }}</small>
+                                </div>
+                                <div class="stars text-warning small mt-1">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span class="text-muted">(42)</span>
+                                </div>
+                                <a href="{{ url_for('product_detail', id=related_product.id) }}" class="btn btn-sm btn-light w-100 mt-2">
                                     {{ get_text('view') }}
                                 </a>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
 </div>
@@ -208,17 +295,64 @@
 <!-- Mobile floating action button -->
 <div class="d-md-none">
     {% if product.stock > 0 %}
-        <div class="mobile-cart-summary show">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <strong class="fs-5">{{ product.price }}₽</strong>
-                    <small class="d-block text-white-50">{{ product.name }}</small>
+        <div class="fixed-bottom bg-white border-top p-3">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <div class="price text-danger fw-bold fs-5">₽{{ "%.0f"|format(product.price) }}</div>
+                        <small class="text-muted">{{ product.name[:20] }}...</small>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn text-white w-100" 
+                                style="background: linear-gradient(45deg, #FF69B4, #FF1493);"
+                                onclick="addToCart({{ product.id }})">
+                            <i class="fas fa-plus me-1"></i>В корзину
+                        </button>
+                    </div>
                 </div>
-                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-light">
-                    <i class="fas fa-plus me-1"></i>{{ get_text('add') if get_text('add') != 'add' else 'Добавить' }}
-                </a>
             </div>
         </div>
     {% endif %}
 </div>
+
+<script>
+function increaseQuantity() {
+    const input = document.getElementById('quantity');
+    const max = parseInt(input.max);
+    if (parseInt(input.value) < max) {
+        input.value = parseInt(input.value) + 1;
+    }
+}
+
+function decreaseQuantity() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+function addToCart(productId) {
+    const quantity = document.getElementById('quantity') ? document.getElementById('quantity').value : 1;
+    window.location.href = `{{ url_for('add_to_cart', product_id=0) }}`.replace('0', productId);
+}
+
+function buyNow(productId) {
+    addToCart(productId);
+    setTimeout(() => {
+        window.location.href = '{{ url_for("cart") }}';
+    }, 500);
+}
+
+// Product card hover effects
+document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+        this.style.transition = 'transform 0.3s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+</script>
 {% endblock %}
