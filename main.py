@@ -597,7 +597,8 @@ def checkout():
                 phone=phone,
                 payment_method=payment_method,
                 bank=bank,
-                payment_status='pending' if payment_method == 'online' else 'not_required'
+                payment_status='pending' if payment_method == 'online' else 'not_required',
+                status='confirmed'  # Автоматически подтверждаем заказ для курьеров
             )
             db.session.add(order)
             db.session.flush()
@@ -871,8 +872,10 @@ def courier_dashboard():
     # My assigned orders
     my_orders = Order.query.filter_by(courier_id=current_user.id).order_by(Order.created_at.desc()).all()
 
-    # Available orders (not assigned to any courier)
-    available_orders = Order.query.filter_by(courier_id=None, status='confirmed').order_by(Order.created_at.desc()).all()
+    # Available orders (not assigned to any courier and confirmed)
+    available_orders = Order.query.filter_by(courier_id=None).filter(
+        Order.status.in_(['confirmed', 'pending'])
+    ).order_by(Order.created_at.desc()).all()
 
     # Statistics for courier
     total_deliveries = Order.query.filter_by(courier_id=current_user.id, status='delivered').count()
@@ -895,7 +898,7 @@ def courier_take_order(order_id):
         return redirect(url_for('index'))
 
     order = Order.query.get_or_404(order_id)
-    if order.courier_id is None and order.status == 'confirmed':
+    if order.courier_id is None and order.status in ['confirmed', 'pending']:
         order.courier_id = current_user.id
         order.status = 'shipped'
         db.session.commit()
