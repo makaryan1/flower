@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, DecimalField, IntegerField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, NumberRange
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
+import logging
 
 # Multilingual translations
 TRANSLATIONS = {
@@ -61,6 +59,23 @@ TRANSLATIONS = {
         'newsletter_text': 'Получайте уведомления о новых поступлениях',
         'all_rights': 'Все права защищены',
         'cart_cleared': 'Корзина очищена!',
+        'welcome_title': 'Добро пожаловать в FlowerShop',
+        'welcome_subtitle': 'Лучший цветочный магазин в Ахалцихе',
+        'shop_now': 'Купить сейчас',
+        'learn_more': 'Узнать больше',
+        'why_choose_us': 'Почему выбирают нас',
+        'featured_products': 'Рекомендуемые товары',
+        'best_sellers': 'Хиты продаж',
+        'view_details': 'Подробнее',
+        'featured': 'Рекомендуем',
+        'view_all_products': 'Посмотреть все товары',
+        'happy_customers': 'довольных клиентов',
+        'orders_delivered': 'выполненных заказов',
+        'flower_varieties': 'видов цветов',
+        'customer_support': 'поддержка клиентов',
+        'customer_reviews': 'Отзывы клиентов',
+        'what_customers_say': 'Что говорят наши клиенты',
+        'guarantee_text': '100% гарантия качества на все цветы',
         'order_not_found': 'Заказ не найден!',
         'invalid_credentials': 'Неверное имя пользователя или пароль!',
         'username_exists': 'Пользователь с таким именем уже существует!',
@@ -453,7 +468,7 @@ def get_delivery_cost(district):
     city_districts = ['center', 'rustaveli', 'agmashenebeli', 'rabat']
     # Деревни возле Ахалцихе (10 лари)  
     village_districts = ['tabatskuri', 'vale', 'okami', 'akhalkalaki_road']
-    
+
     if district in city_districts:
         return 5
     elif district in village_districts:
@@ -467,8 +482,9 @@ def inject_globals():
 
 @app.route('/')
 def index():
+    featured_products = Product.query.filter_by(is_featured=True, is_visible=True).limit(4).all()
     products = Product.query.filter_by(is_visible=True).limit(8).all()
-    return render_template('index.html', products=products)
+    return render_template('index.html', products=products, featured_products=featured_products)
 
 @app.route('/catalog')
 def catalog():
@@ -560,7 +576,7 @@ def checkout():
         return redirect(url_for('cart'))
 
     form = CheckoutForm()
-    
+
     if request.method == 'POST':
         # Manual form validation
         district = request.form.get('district')
@@ -569,7 +585,7 @@ def checkout():
         payment_method = request.form.get('payment', 'cash')
         bank = request.form.get('bank', '') if payment_method == 'online' else None
         delivery_method = request.form.get('delivery', 'standard')
-        
+
         # Validation
         errors = []
         if not district:
@@ -580,7 +596,7 @@ def checkout():
             errors.append('Укажите номер телефона')
         if payment_method == 'online' and not bank:
             errors.append('Выберите банк для онлайн-оплаты')
-        
+
         if not errors:
             # Создаем заказ
             total = 0
@@ -595,7 +611,7 @@ def checkout():
             delivery_cost = 0
             if delivery_method != 'pickup':
                 delivery_cost = get_delivery_cost(district)
-            
+
             # Add delivery cost to total
             final_total = total + delivery_cost
 
@@ -629,7 +645,7 @@ def checkout():
 
             db.session.commit()
             session.pop('cart', None)
-            
+
             # Handle payment method
             if payment_method == 'online' and bank:
                 flash(f'Заказ оформлен! Перенаправляем на оплату через {bank.upper()}...', 'info')
@@ -1105,50 +1121,33 @@ def admin_bulk_update_orders():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # Создаем админа по умолчанию
+
+        # Создаем админа по умолчанию если его нет
         admin = User.query.filter_by(username='admin').first()
         if not admin:
             admin = User(
                 username='admin',
-                email='admin@example.com',
+                email='admin@flowershop.com',
                 password_hash=generate_password_hash('admin123'),
                 is_admin=True
             )
             db.session.add(admin)
+            db.session.commit()
+            print("Админ создан: admin/admin123")
 
-        # Создаем курьера по умолчанию
-        courier = User.query.filter_by(username='courier').first()
-        if not courier:
-            courier = User(
-                username='courier',
-                email='courier@example.com',
-                password_hash=generate_password_hash('courier123'),
-                is_courier=True
-            )
-            db.session.add(courier)
-
-        db.session.commit()
-
-        # Добавляем товары по умолчанию
+        # Добавляем тестовые товары если их нет
         if Product.query.count() == 0:
             sample_products = [
-                Product(name='Красные розы', description='Букет из 11 красных роз', price=2500, stock=50, category='roses', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=True),
-                Product(name='Белые тюльпаны', description='Букет из 15 белых тюльпанов', price=1800, stock=30, category='tulips', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=False),
-                Product(name='Орхидея фаленопсис', description='Белая орхидея в горшке', price=3500, stock=20, category='orchids', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=True),
-                Product(name='Свадебный букет', description='Роскошный свадебный букет', price=8000, stock=10, category='bouquets', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=True),
-                Product(name='Фикус Бенджамина', description='Красивое комнатное растение', price=1200, stock=25, category='potted', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=False),
+                Product(name='Красные розы', description='Букет из 25 красных роз', price=2500, stock=20, category='розы', image_url='https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400', is_visible=True, is_featured=True),
+                Product(name='Белые лилии', description='Элегантный букет белых лилий', price=1800, stock=15, category='лилии', image_url='https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400', is_visible=True, is_featured=True),
+                Product(name='Тюльпаны микс', description='Яркий букет разноцветных тюльпанов', price=1500, stock=30, category='тюльпаны', image_url='https://images.unsplash.com/photo-1520763185298-1b434c919102?w=400', is_visible=True),
+                Product(name='Пионы', description='Нежные розовые пионы', price=3000, stock=10, category='пионы', image_url='https://images.unsplash.com/photo-1588017341958-ce36aa0fb6d3?w=400', is_visible=True, is_featured=True),
+                Product(name='Орхидеи', description='Экзотические орхидеи', price=4500, stock=8, category='орхидеи', image_url='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', is_visible=True),
+                Product(name='Хризантемы', description='Осенние хризантемы', price=1200, stock=25, category='хризантемы', image_url='https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400', is_visible=True)
             ]
             for product in sample_products:
                 db.session.add(product)
             db.session.commit()
-        
-        # Обновляем существующие товары, если у них нет новых полей
-        existing_products = Product.query.all()
-        for product in existing_products:
-            if not hasattr(product, 'is_visible') or product.is_visible is None:
-                product.is_visible = True
-            if not hasattr(product, 'is_featured') or product.is_featured is None:
-                product.is_featured = False
-        db.session.commit()
+            print("Добавлены тестовые товары")
 
     app.run(host='0.0.0.0', port=5000, debug=True)
