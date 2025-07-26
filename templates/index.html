@@ -1,6 +1,7 @@
+
 {% extends "base.html" %}
 
-{% block title %}{{ get_text('main_page') }} - FlowerShop{% endblock %}
+{% block title %}FlowerShop - Лучшие цветы в городе{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -8,64 +9,73 @@
     <div class="container">
         <div class="row align-items-center min-vh-75">
             <div class="col-lg-6">
-                <div class="hero-content">
-                    <h1 class="hero-title">{{ get_text('welcome_title') }}</h1>
-                    <p class="hero-subtitle">{{ get_text('welcome_subtitle') }}</p>
+                <div class="hero-content fade-in">
+                    <h1 class="hero-title">Цветы для особых моментов</h1>
+                    <p class="hero-subtitle">Создаем незабываемые эмоции с помощью свежих цветов высочайшего качества. Быстрая доставка по всему городу.</p>
                     <div class="hero-buttons">
-                        <a href="{{ url_for('catalog') }}" class="btn btn-primary btn-lg me-3">
-                            <i class="fas fa-shopping-bag me-2"></i>{{ get_text('shop_now') }}
+                        <a href="{{ url_for('catalog') }}" class="btn btn-light btn-lg me-3">
+                            <i class="fas fa-shopping-bag me-2"></i>Купить цветы
                         </a>
                         <a href="#features" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-info-circle me-2"></i>{{ get_text('learn_more') }}
+                            <i class="fas fa-info-circle me-2"></i>Узнать больше
                         </a>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1574263867128-35b8b2cc3174?w=600&h=400&fit=crop" 
-                         alt="Beautiful flowers" class="img-fluid rounded-4 shadow-lg">
+                <div class="hero-image slide-up">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600&h=500&fit=crop&crop=center" 
+                             alt="Красивые цветы" class="img-fluid rounded-3 shadow-lg">
+                        <div class="hero-badge">
+                            <i class="fas fa-award text-warning"></i>
+                            <span>Лучший выбор</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section id="features" class="features-section py-5">
+<!-- Quick Stats -->
+<section class="py-5 bg-white">
     <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-12">
-                <h2 class="section-title">{{ get_text('why_choose_us') }}</h2>
-                <p class="section-subtitle">{{ get_text('quality_guarantee') }}</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-truck text-primary"></i>
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users text-primary"></i>
                     </div>
-                    <h4>{{ get_text('fast_delivery') }}</h4>
-                    <p>{{ get_text('delivery_text') }}</p>
+                    <h3 class="stat-number">2500+</h3>
+                    <p class="text-muted">Довольных клиентов</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-seedling text-success"></i>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-box text-success"></i>
                     </div>
-                    <h4>{{ get_text('fresh_flowers') }}</h4>
-                    <p>{{ get_text('fresh_text') }}</p>
+                    <h3 class="stat-number">5000+</h3>
+                    <p class="text-muted">Доставленных заказов</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt text-info"></i>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-rose text-danger"></i>
                     </div>
-                    <h4>{{ get_text('quality_guarantee') }}</h4>
-                    <p>{{ get_text('guarantee_text') }}</p>
+                    <h3 class="stat-number">150+</h3>
+                    <p class="text-muted">Видов цветов</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <h3 class="stat-number">24/7</h3>
+                    <p class="text-muted">Работаем для вас</p>
                 </div>
             </div>
         </div>
@@ -73,40 +83,51 @@
 </section>
 
 <!-- Featured Products -->
-<section class="featured-products py-5 bg-light">
+<section class="py-5 bg-light">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
-                <h2 class="section-title">{{ get_text('featured_products') }}</h2>
-                <p class="section-subtitle">{{ get_text('best_sellers') }}</p>
+                <h2 class="section-title">Популярные товары</h2>
+                <p class="section-subtitle">Самые покупаемые цветы и букеты</p>
             </div>
         </div>
         <div class="row g-4">
-            {% for product in featured_products %}
+            {% set sample_products = [
+                {'name': 'Букет красных роз', 'price': 2500, 'image': 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=300&h=300&fit=crop', 'category': 'roses'},
+                {'name': 'Весенние тюльпаны', 'price': 1800, 'image': 'https://images.unsplash.com/photo-1520763185298-1b434c919102?w=300&h=300&fit=crop', 'category': 'tulips'},
+                {'name': 'Белые орхидеи', 'price': 3200, 'image': 'https://images.unsplash.com/photo-1515669097368-22e68427d265?w=300&h=300&fit=crop', 'category': 'orchids'},
+                {'name': 'Романтический букет', 'price': 4500, 'image': 'https://images.unsplash.com/photo-1563241527-3004b7be0ffa?w=300&h=300&fit=crop', 'category': 'bouquets'}
+            ] %}
+            
+            {% for product in sample_products %}
             <div class="col-lg-3 col-md-6">
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="{{ product.image_url or 'https://via.placeholder.com/300x300/FF69B4/ffffff?text=' + product.name }}" 
-                             alt="{{ product.name }}" class="img-fluid">
+                <div class="product-card modern-card">
+                    <div class="position-relative">
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
                         <div class="product-overlay">
-                            <a href="{{ url_for('product_detail', id=product.id) }}" class="btn btn-white btn-sm">
-                                <i class="fas fa-eye me-1"></i>{{ get_text('view_details') }}
+                            <a href="{{ url_for('catalog', category=product.category) }}" class="btn btn-light">
+                                <i class="fas fa-eye me-1"></i>Смотреть
                             </a>
                         </div>
-                        {% if product.is_featured %}
-                        <span class="product-badge">{{ get_text('featured') }}</span>
-                        {% endif %}
+                        <div class="product-badge">Хит</div>
                     </div>
-                    <div class="product-info">
-                        <h5 class="product-title">{{ product.name }}</h5>
-                        <p class="product-category">{{ get_text(product.category) }}</p>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <div class="rating mb-2">
+                            <div class="stars text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="text-muted small">(127)</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="product-price">₽{{ "%.0f"|format(product.price) }}</span>
-                            <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="d-inline">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </form>
+                            <span class="price text-danger fw-bold fs-5">₽{{ product.price }}</span>
+                            <a href="{{ url_for('catalog', category=product.category) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-shopping-cart"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -115,101 +136,190 @@
         </div>
         <div class="text-center mt-5">
             <a href="{{ url_for('catalog') }}" class="btn btn-primary btn-lg">
-                {{ get_text('view_all_products') }}
+                Смотреть все товары
                 <i class="fas fa-arrow-right ms-2"></i>
             </a>
         </div>
     </div>
 </section>
 
-<!-- Statistics Section -->
-<section class="stats-section py-5">
+<!-- Features Section -->
+<section id="features" class="features-section">
     <div class="container">
-        <div class="row g-4 text-center">
-            <div class="col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">{{ get_text('happy_customers') }}</div>
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="section-title">Почему выбирают нас</h2>
+                <p class="section-subtitle">Мы заботимся о качестве и ваших эмоциях</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card scroll-animation">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h4>Быстрая доставка</h4>
+                    <p>Доставляем цветы в течение 2-4 часов по всему городу. Экспресс-доставка за 1 час.</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number">1000+</div>
-                    <div class="stat-label">{{ get_text('orders_delivered') }}</div>
+            <div class="col-md-4">
+                <div class="feature-card scroll-animation">
+                    <div class="feature-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h4>Только свежие цветы</h4>
+                    <p>Работаем напрямую с лучшими поставщиками. Гарантия свежести 7 дней.</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number">50+</div>
-                    <div class="stat-label">{{ get_text('flower_varieties') }}</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">{{ get_text('customer_support') }}</div>
+            <div class="col-md-4">
+                <div class="feature-card scroll-animation">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4>Индивидуальный подход</h4>
+                    <p>Создаем уникальные букеты для каждого случая. Консультация флориста бесплатно.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Testimonials Section -->
-<section class="testimonials-section py-5 bg-light">
+<!-- Categories Section -->
+<section class="py-5 bg-white">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-12">
-                <h2 class="section-title">{{ get_text('customer_reviews') }}</h2>
-                <p class="section-subtitle">{{ get_text('what_customers_say') }}</p>
+                <h2 class="section-title">Наши категории</h2>
+                <p class="section-subtitle">Выберите идеальные цветы для любого повода</p>
             </div>
         </div>
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+            {% set categories = [
+                {'name': 'Розы', 'icon': 'fa-rose', 'color': 'text-danger', 'bg': 'bg-danger', 'category': 'roses', 'image': 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=300&h=200&fit=crop'},
+                {'name': 'Тюльпаны', 'icon': 'fa-seedling', 'color': 'text-success', 'bg': 'bg-success', 'category': 'tulips', 'image': 'https://images.unsplash.com/photo-1520763185298-1b434c919102?w=300&h=200&fit=crop'},
+                {'name': 'Орхидеи', 'icon': 'fa-leaf', 'color': 'text-info', 'bg': 'bg-info', 'category': 'orchids', 'image': 'https://images.unsplash.com/photo-1515669097368-22e68427d265?w=300&h=200&fit=crop'},
+                {'name': 'Букеты', 'icon': 'fa-gift', 'color': 'text-primary', 'bg': 'bg-primary', 'category': 'bouquets', 'image': 'https://images.unsplash.com/photo-1563241527-3004b7be0ffa?w=300&h=200&fit=crop'}
+            ] %}
+            
+            {% for cat in categories %}
+            <div class="col-lg-3 col-md-6">
+                <a href="{{ url_for('catalog', category=cat.category) }}" class="text-decoration-none">
+                    <div class="category-card modern-card">
+                        <div class="category-image">
+                            <img src="{{ cat.image }}" alt="{{ cat.name }}" class="img-fluid">
+                            <div class="category-overlay">
+                                <div class="category-icon {{ cat.bg }}">
+                                    <i class="fas {{ cat.icon }}"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ cat.name }}</h5>
+                            <p class="text-muted small">Широкий выбор качественных цветов</p>
+                        </div>
                     </div>
-                    <p class="testimonial-text">"Прекрасные цветы и отличный сервис! Заказываю здесь уже не первый раз."</p>
-                    <div class="testimonial-author">
-                        <strong>Анна К.</strong>
-                        <small class="text-muted">Постоянный клиент</small>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="section-title">Отзывы клиентов</h2>
+                <p class="section-subtitle">Что говорят о нас наши покупатели</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% set testimonials = [
+                {'name': 'Анна Петрова', 'text': 'Заказывала букет для мамы на день рождения. Цветы пришли свежие и красивые, доставка точно в срок!', 'rating': 5},
+                {'name': 'Михаил Иванов', 'text': 'Отличный сервис! Помогли выбрать букет для жены, она была в восторге. Обязательно буду заказывать еще.', 'rating': 5},
+                {'name': 'Елена Сидорова', 'text': 'Быстрая доставка и красивое оформление. Цены адекватные, качество на высоте. Рекомендую!', 'rating': 5}
+            ] %}
+            
+            {% for testimonial in testimonials %}
+            <div class="col-md-4">
+                <div class="testimonial-card modern-card">
+                    <div class="card-body">
+                        <div class="testimonial-stars mb-3">
+                            {% for i in range(testimonial.rating) %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="testimonial-text">"{{ testimonial.text }}"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <strong>{{ testimonial.name }}</strong>
+                                <small class="text-muted d-block">Проверенный покупатель</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="mb-4">Свяжитесь с нами</h2>
+                <p class="mb-4">Готовы помочь вам выбрать идеальные цветы для любого случая</p>
+                <div class="contact-info">
+                    <div class="contact-item mb-3">
+                        <i class="fas fa-phone text-primary me-3"></i>
+                        <span>+995 555 123 456</span>
                     </div>
-                    <p class="testimonial-text">"Быстрая доставка и свежие цветы. Рекомендую всем!"</p>
-                    <div class="testimonial-author">
-                        <strong>Михаил С.</strong>
-                        <small class="text-muted">Довольный покупатель</small>
+                    <div class="contact-item mb-3">
+                        <i class="fas fa-envelope text-primary me-3"></i>
+                        <span>info@flowershop.ge</span>
+                    </div>
+                    <div class="contact-item mb-3">
+                        <i class="fas fa-map-marker-alt text-primary me-3"></i>
+                        <span>г. Ахалцихе, ул. Руставели 15</span>
+                    </div>
+                    <div class="contact-item mb-3">
+                        <i class="fas fa-clock text-primary me-3"></i>
+                        <span>Ежедневно с 9:00 до 21:00</span>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">"Удобный сайт, качественные цветы, профессиональное оформление."</p>
-                    <div class="testimonial-author">
-                        <strong>Елена В.</strong>
-                        <small class="text-muted">Клиент с 2023 года</small>
-                    </div>
+            <div class="col-lg-6">
+                <div class="contact-form bg-white p-4 rounded-3">
+                    <h4 class="text-dark mb-4">Быстрый заказ</h4>
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="tel" class="form-control" placeholder="Телефон" required>
+                        </div>
+                        <div class="mb-3">
+                            <select class="form-select">
+                                <option>Выберите категорию</option>
+                                <option>Розы</option>
+                                <option>Тюльпаны</option>
+                                <option>Орхидеи</option>
+                                <option>Букеты</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" rows="3" placeholder="Комментарий к заказу"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-paper-plane me-2"></i>Отправить заявку
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -217,212 +327,155 @@
 </section>
 
 <style>
-.hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    padding: 80px 0;
-    margin-top: -100px;
-    padding-top: 180px;
-}
-
-.hero-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.hero-subtitle {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
-}
-
-.hero-buttons .btn {
-    padding: 12px 30px;
+.hero-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
     border-radius: 25px;
+    color: #333;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-light);
 }
 
-.features-section {
-    padding: 100px 0;
+.stat-card {
+    padding: 2rem 1rem;
+    text-align: center;
 }
 
-.section-title {
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-number {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-.section-subtitle {
-    font-size: 1.1rem;
-    color: #6c757d;
-    margin-bottom: 3rem;
+.category-card {
+    transition: var(--transition);
+    overflow: hidden;
 }
 
-.feature-card {
-    text-align: center;
-    padding: 3rem 2rem;
-    border-radius: 20px;
-    background: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%;
-}
-
-.feature-card:hover {
+.category-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-}
-
-.product-card {
-    background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
-
-.product-image {
+.category-image {
     position: relative;
+    height: 200px;
     overflow: hidden;
-    height: 250px;
 }
 
-.product-image img {
+.category-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: var(--transition);
 }
 
-.product-overlay {
+.category-card:hover .category-image img {
+    transform: scale(1.1);
+}
+
+.category-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
-.product-card:hover .product-overlay {
-    opacity: 1;
-}
-
-.product-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--gradient-primary);
+.category-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
-    padding: 5px 15px;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.product-info {
-    padding: 1.5rem;
-}
-
-.product-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.product-category {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
-.product-price {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.stats-section {
-    background: var(--gradient-primary);
-    color: white;
-}
-
-.stat-item {
-    padding: 2rem 1rem;
-}
-
-.stat-number {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    font-size: 1.5rem;
 }
 
 .testimonial-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     text-align: center;
     height: 100%;
 }
 
-.testimonial-stars {
-    color: #ffc107;
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-}
-
-.testimonial-text {
-    font-style: italic;
-    margin-bottom: 1.5rem;
-    color: #6c757d;
-}
-
 .testimonial-author {
-    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.contact-form {
+    box-shadow: var(--shadow-medium);
 }
 
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2.5rem;
     }
-
-    .hero-section {
-        padding: 60px 0;
-        padding-top: 140px;
+    
+    .stat-icon {
+        font-size: 2rem;
+        height: 60px;
     }
-
-    .features-section {
-        padding: 60px 0;
-    }
-
-    .feature-card {
-        padding: 2rem 1rem;
-        margin-bottom: 2rem;
+    
+    .stat-number {
+        font-size: 2rem;
     }
 }
 </style>
+
+<script>
+// Scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.scroll-animation').forEach(el => {
+    observer.observe(el);
+});
+
+// Contact form
+document.querySelector('.contact-form form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Спасибо за заявку! Мы свяжемся с вами в ближайшее время.');
+});
+</script>
 {% endblock %}

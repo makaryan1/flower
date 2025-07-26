@@ -1,55 +1,29 @@
 <!DOCTYPE html>
-<html lang="{{ get_language() }}">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-    <meta name="description" content="{{ get_text('welcome_subtitle') }}">
-    <meta name="theme-color" content="#ff69b4">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="FlowerShop">
-    <title>{% block title %}{{ get_text('site_title') }}{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-</head>
-<body style="background-color: #f8bbd0;"> <!-- Simple pink background -->
-    <!-- Language Selector -->
-    <div class="language-bar">
-        <div class="container">
-            <div class="d-flex justify-content-end py-2">
-                <div class="dropdown">
-                    <button class="btn btn-link text-white dropdown-toggle language-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-globe me-1"></i>
-                        {% if get_language() == 'en' %}English{% elif get_language() == 'ka' %}ქართული{% else %}Русский{% endif %}
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item {% if get_language() == 'ru' %}active{% endif %}" href="{{ url_for('set_language', language='ru') }}">🇷🇺 Русский</a></li>
-                        <li><a class="dropdown-item {% if get_language() == 'en' %}active{% endif %}" href="{{ url_for('set_language', language='en') }}">🇺🇸 English</a></li>
-                        <li><a class="dropdown-item {% if get_language() == 'ka' %}active{% endif %}" href="{{ url_for('set_language', language='ka') }}">🇬🇪 ქართული</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FlowerShop - Лучшие цветы в городе{% endblock %}</title>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary sticky-top">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top modern-nav">
         <div class="container">
-            <a class="navbar-brand brand-logo" href="{{ url_for('index') }}">
-                <i class="fas fa-seedling me-2"></i>
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <div class="brand-icon">
+                    <i class="fas fa-rose"></i>
+                </div>
                 <span class="brand-text">FlowerShop</span>
             </a>
-
-            <!-- Mobile cart indicator -->
-            <div class="d-lg-none">
-                <a class="nav-link cart-link text-white me-3" href="{{ url_for('cart') }}">
-                    <i class="fas fa-shopping-cart"></i>
-                    {% if session.get('cart') %}
-                        <span class="cart-badge">{{ session.cart.values() | sum }}</span>
-                    {% endif %}
-                </a>
-            </div>
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -59,92 +33,104 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-home me-1"></i>{{ get_text('home') }}
+                            <i class="fas fa-home me-1"></i>Главная
                         </a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-th-large me-1"></i>{{ get_text('catalog') }}
+                            <i class="fas fa-leaf me-1"></i>Каталог
                         </a>
-                        <ul class="dropdown-menu category-dropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('catalog') }}">{{ get_text('all_categories') }}</a></li>
+                        <ul class="dropdown-menu modern-dropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('catalog') }}">Все товары</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='roses') }}"><i class="fas fa-rose me-2"></i>{{ get_text('roses') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='tulips') }}"><i class="fas fa-spa me-2"></i>{{ get_text('tulips') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='orchids') }}"><i class="fas fa-leaf me-2"></i>{{ get_text('orchids') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='bouquets') }}"><i class="fas fa-gift me-2"></i>{{ get_text('bouquets') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='potted') }}"><i class="fas fa-seedling me-2"></i>{{ get_text('potted') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='roses') }}">
+                                <i class="fas fa-rose text-danger me-2"></i>Розы
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='tulips') }}">
+                                <i class="fas fa-seedling text-success me-2"></i>Тюльпаны
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='orchids') }}">
+                                <i class="fas fa-leaf text-info me-2"></i>Орхидеи
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('catalog', category='bouquets') }}">
+                                <i class="fas fa-gift text-primary me-2"></i>Букеты
+                            </a></li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">
+                            <i class="fas fa-phone me-1"></i>Контакты
+                        </a>
+                    </li>
                 </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item d-none d-lg-block">
-                        <a class="nav-link cart-link" href="{{ url_for('cart') }}">
-                            <i class="fas fa-shopping-bag me-1"></i>{{ get_text('cart') }}
-                            {% if session.cart %}
-                                <span class="badge bg-light text-dark cart-badge">{{ session.cart.values() | sum }}</span>
-                            {% endif %}
+
+                <div class="navbar-nav">
+                    <!-- Search -->
+                    <form class="d-flex me-3" method="GET" action="{{ url_for('catalog') }}">
+                        <div class="search-box">
+                            <input class="form-control" type="search" placeholder="Поиск цветов..." name="search">
+                            <button class="btn search-btn" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Cart -->
+                    <div class="nav-item dropdown me-3">
+                        <a class="nav-link position-relative" href="{{ url_for('cart') }}">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge">{{ session.get('cart', {})|length }}</span>
                         </a>
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a class="nav-link" href="{{ url_for('cart') }}">
-                            <i class="fas fa-shopping-bag me-1"></i>{{ get_text('cart') }}
-                            {% if session.cart %}
-                                <span class="badge bg-light text-dark cart-badge">{{ session.cart.values() | sum }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
+                    </div>
+
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item dropdown">
+                        <div class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle me-1"></i>{{ current_user.username }}
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span>{{ current_user.username }}</span>
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
                                 <li><a class="dropdown-item" href="{{ url_for('my_orders') }}">
-                                    <i class="fas fa-box me-2"></i>{{ get_text('my_orders') }}
+                                    <i class="fas fa-box me-2"></i>Мои заказы
                                 </a></li>
-                                {% if current_user.is_courier %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('courier_dashboard') }}">
-                                        <i class="fas fa-motorcycle me-2"></i>{{ get_text('courier_panel') }}
-                                    </a></li>
-                                {% endif %}
-                                {% if current_user.is_admin %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('admin') }}">
-                                        <i class="fas fa-cog me-2"></i>{{ get_text('admin_panel') }}
-                                    </a></li>
+                                {% if current_user.role == 'admin' %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-cog me-2"></i>Админ панель
+                                </a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>{{ get_text('logout') }}
+                                    <i class="fas fa-sign-out-alt me-2"></i>Выйти
                                 </a></li>
                             </ul>
-                        </li>
+                        </div>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">
-                                <i class="fas fa-sign-in-alt me-1"></i>{{ get_text('login') }}
+                        <div class="nav-item me-2">
+                            <a class="btn btn-outline-light btn-sm" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Войти
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}">
-                                <i class="fas fa-user-plus me-1"></i>{{ get_text('register') }}
+                        </div>
+                        <div class="nav-item">
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-1"></i>Регистрация
                             </a>
-                        </li>
+                        </div>
                     {% endif %}
-                </ul>
+                </div>
             </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main class="main-content">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="container mt-3">
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show custom-alert" role="alert">
-                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-2"></i>
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show modern-alert" role="alert">
+                            <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
                             {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -156,165 +142,114 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="footer bg-dark text-light">
-        <div class="container py-5">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5 class="footer-title">
-                        <i class="fas fa-seedling me-2"></i>FlowerShop
-                    </h5>
-                    <p class="footer-text">{{ get_text('best_flowers') }}</p>
-                    <div class="social-links">
-                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <h5><i class="fas fa-rose me-2"></i>FlowerShop</h5>
+                        <p class="text-muted">Лучшие цветы для особых моментов. Свежесть, качество и красота в каждом букете.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-whatsapp"></i></a>
+                            <a href="#"><i class="fab fa-telegram"></i></a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5 class="footer-title">{{ get_text('contacts') }}</h5>
+                <div class="col-lg-2 col-md-6">
+                    <h6>Каталог</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('catalog', category='roses') }}">Розы</a></li>
+                        <li><a href="{{ url_for('catalog', category='tulips') }}">Тюльпаны</a></li>
+                        <li><a href="{{ url_for('catalog', category='orchids') }}">Орхидеи</a></li>
+                        <li><a href="{{ url_for('catalog', category='bouquets') }}">Букеты</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6>Информация</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">О нас</a></li>
+                        <li><a href="#">Доставка</a></li>
+                        <li><a href="#">Оплата</a></li>
+                        <li><a href="#">Возврат</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6>Контакты</h6>
                     <div class="contact-info">
-                        <p><i class="fas fa-phone me-2"></i> +7 (123) 456-78-90</p>
-                        <p><i class="fas fa-envelope me-2"></i> info@flowershop.ru</p>
-                        <p><i class="fas fa-map-marker-alt me-2"></i> {{ get_text('address') if get_text('address') != 'address' else 'г. Москва, ул. Цветочная, д. 1' }}</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12 mb-4">
-                    <h5 class="footer-title">{{ get_text('newsletter') if get_text('newsletter') != 'newsletter' else 'Подписка' }}</h5>
-                    <p class="footer-text">{{ get_text('newsletter_text') if get_text('newsletter_text') != 'newsletter_text' else 'Получайте уведомления о новых поступлениях' }}</p>
-                    <div class="newsletter-form">
-                        <div class="input-group">
-                            <input type="email" class="form-control" placeholder="{{ get_text('email') }}">
-                            <button class="btn btn-primary" type="button">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+995 555 123 456</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>info@flowershop.ge</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>г. Ахалцихе, ул. Руставели 15</span>
                         </div>
                     </div>
                 </div>
             </div>
             <hr class="footer-divider">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="mb-0">&copy; 2024 FlowerShop. {{ get_text('all_rights') if get_text('all_rights') != 'all_rights' else 'Все права защищены' }}.</p>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">&copy; 2024 FlowerShop. Все права защищены.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">Работаем ежедневно с 9:00 до 21:00</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Product Quick View Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">{{ get_text('product_details') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="productModalBody">
-                    <!-- Product content will be loaded here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ get_text('close') if get_text('close') != 'close' else 'Закрыть' }}</button>
-                    <button type="button" class="btn btn-primary" id="addToCartFromModal">{{ get_text('add_to_cart') }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
     <script>
-        // Smooth scrolling
+        // Back to top button
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Search functionality
+        document.querySelector('.search-box input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closest('form').submit();
+            }
+        });
+
+        // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
             });
         });
-
-        // Auto-hide alerts
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-
-        // Product Quick View Function
-        function showProductModal(productId) {
-            fetch(`/api/product/${productId}`)
-                .then(response => response.json())
-                .then(product => {
-                    document.getElementById('productModalLabel').textContent = product.name;
-                    document.getElementById('productModalBody').innerHTML = `
-                        <div class="row">
-                            <div class="col-md-6">
-                                <img src="${product.image_url || 'https://via.placeholder.com/400x400'}" 
-                                     class="img-fluid rounded" alt="${product.name}">
-                            </div>
-                            <div class="col-md-6">
-                                <h4>${product.name}</h4>
-                                <p class="text-muted">${product.description || 'Описание отсутствует'}</p>
-                                <div class="price mb-3">
-                                    <span class="fs-3 text-danger fw-bold">₽${product.price}</span>
-                                </div>
-                                <div class="stock-info mb-3">
-                                    <span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}">
-                                        ${product.stock > 0 ? 'В наличии: ' + product.stock + ' шт.' : 'Нет в наличии'}
-                                    </span>
-                                </div>
-                                <div class="quantity-selector mb-3">
-                                    <label class="form-label">Количество:</label>
-                                    <input type="number" class="form-control" id="modalQuantity" value="1" min="1" max="${product.stock}">
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    const addButton = document.getElementById('addToCartFromModal');
-                    addButton.onclick = () => addToCartFromModal(productId);
-                    addButton.style.display = product.stock > 0 ? 'block' : 'none';
-
-                    new bootstrap.Modal(document.getElementById('productModal')).show();
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function addToCartFromModal(productId) {
-            const quantity = document.getElementById('modalQuantity').value;
-            fetch(`/add_to_cart/${productId}?quantity=${quantity}`)
-                .then(() => {
-                    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
-                    // Show success notification
-                    showNotification('Товар добавлен в корзину!', 'success');
-                    updateCartCounter();
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
-            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-            notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function updateCartCounter() {
-            // Update cart badge
-            const cartBadges = document.querySelectorAll('.cart-badge');
-            cartBadges.forEach(badge => {
-                const currentCount = parseInt(badge.textContent) || 0;
-                badge.textContent = currentCount + 1;
-            });
-        }
     </script>
+
+    {% block scripts %}{% endblock %}
 </body>
 </html>
