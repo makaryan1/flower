@@ -20,6 +20,8 @@
                 <th>Цена</th>
                 <th>Количество</th>
                 <th>Категория</th>
+                <th>Видимость</th>
+                <th>Рекомендуемый</th>
                 <th>{{ get_text('actions') if get_text('actions') != 'actions' else 'Действия' }}</th>
             </tr>
         </thead>
@@ -35,6 +37,16 @@
                 <td>{{ product.price }}₽</td>
                 <td>{{ product.stock }}</td>
                 <td>{{ get_text(product.category) }}</td>
+                <td>
+                    <span class="badge {{ 'bg-success' if product.is_visible else 'bg-secondary' }}">
+                        {{ 'Видимый' if product.is_visible else 'Скрытый' }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {{ 'bg-warning' if product.is_featured else 'bg-light text-dark' }}">
+                        {{ 'Да' if product.is_featured else 'Нет' }}
+                    </span>
+                </td>
                 <td>
                     <a href="{{ url_for('admin_edit_product', id=product.id) }}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-edit"></i>

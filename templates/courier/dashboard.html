@@ -210,4 +210,87 @@
         window.open(googleMapsUrl, '_blank');
     }
 </script>
+<!-- Route Modal -->
+<div class="modal fade" id="routeModal" tabindex="-1" aria-labelledby="routeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="routeModalLabel">
+                    <i class="fas fa-route me-2"></i>Маршрут доставки
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="mapContainer" style="height: 400px; border-radius: 8px;">
+                    <iframe id="mapFrame" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+                <div class="mt-3">
+                    <h6>Информация о маршруте:</h6>
+                    <p id="routeInfo" class="text-muted"></p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a id="googleMapsLink" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-google me-1"></i>Открыть в Google Maps
+                        </a>
+                        <a id="appleMapsLink" target="_blank" class="btn btn-secondary">
+                            <i class="fas fa-map me-1"></i>Apple Maps
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showRoute(address, district) {
+    // Определяем координаты Ахалцихе
+    const akhaltsikheCoords = "41.6394,42.9803";
+    const destination = encodeURIComponent(`${address}, ${district}, Ахалцихе, Грузия`);
+
+    // Создаем ссылки для разных картографических сервисов
+    const googleMapsUrl = `https://www.google.com/maps/dir/${akhaltsikheCoords}/${destination}`;
+    const appleMapsUrl = `https://maps.apple.com/?daddr=${destination}&dirflg=d`;
+
+    // Встраиваемая карта Google Maps
+    const embedUrl = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dOMD0C1kmsAh-Q&origin=${akhaltsikheCoords}&destination=${destination}&mode=driving`;
+
+    // Обновляем содержимое модального окна
+    document.getElementById('mapFrame').src = embedUrl;
+    document.getElementById('routeInfo').innerHTML = `
+        <strong>Адрес доставки:</strong> ${address}<br>
+        <strong>Район:</strong> ${district}<br>
+        <strong>Отправная точка:</strong> Центр Ахалцихе
+    `;
+
+    document.getElementById('googleMapsLink').href = googleMapsUrl;
+    document.getElementById('appleMapsLink').href = appleMapsUrl;
+
+    // Показываем модальное окно
+    const routeModal = new bootstrap.Modal(document.getElementById('routeModal'));
+    routeModal.show();
+}
+
+// Функция для получения маршрута через навигационное приложение
+function openInNavigation(address, district) {
+    const destination = `${address}, ${district}, Ахалцихе, Грузия`;
+
+    // Проверяем, является ли устройство мобильным
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        // На мобильных устройствах пытаемся открыть приложение навигации
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            // iOS - пытаемся открыть Apple Maps
+            window.open(`maps://maps.apple.com/?daddr=${encodeURIComponent(destination)}&dirflg=d`);
+        } else {
+            // Android - пытаемся открыть Google Maps
+            window.open(`google.navigation:q=${encodeURIComponent(destination)}`);
+        }
+    } else {
+        // На десктопе открываем Google Maps в браузере
+        window.open(`https://www.google.com/maps/dir/Ахалцихе/${encodeURIComponent(destination)}`);
+    }
+}
+</script>
+
 {% endblock %}

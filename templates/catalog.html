@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}{{ get_text('catalog') }} - {{ get_text('site_title') }}{% endblock %}
@@ -230,12 +229,12 @@
                                         <img src="{{ product.image_url or 'https://via.placeholder.com/300x300/FF69B4/ffffff?text=' + get_text(product.category) }}" 
                                              class="card-img-top" alt="{{ product.name }}" 
                                              style="height: 200px; object-fit: cover;">
-                                        
+
                                         <!-- Badges -->
                                         <div class="position-absolute top-0 start-0 m-2">
                                             <span class="badge bg-success">{{ get_text(product.category) }}</span>
                                         </div>
-                                        
+
                                         <div class="position-absolute top-0 end-0 m-2">
                                             {% if product.stock > 0 %}
                                                 <span class="badge bg-danger">-20%</span>
@@ -249,7 +248,7 @@
                                             <button class="btn btn-sm btn-light rounded-circle me-1" title="В избранное">
                                                 <i class="fas fa-heart"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-light rounded-circle" title="Быстрый просмотр">
+                                            <button onclick="showProductModal({{ product.id }})" class="btn btn-sm btn-light rounded-circle" title="Быстрый просмотр">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
@@ -260,10 +259,10 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                    
+
                                     <div class="card-body d-flex flex-column">
                                         <h6 class="card-title mb-2">{{ product.name }}</h6>
-                                        
+
                                         <!-- Rating -->
                                         <div class="rating mb-2">
                                             <div class="stars text-warning small">
@@ -388,7 +387,7 @@ function showNotification(message, type) {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 5000);
@@ -409,7 +408,7 @@ document.getElementById('sortSelect').addEventListener('change', function() {
     const sortValue = this.value;
     const productsList = document.getElementById('productsList');
     const products = Array.from(productsList.children);
-    
+
     products.sort((a, b) => {
         switch(sortValue) {
             case 'price_asc':
@@ -422,7 +421,7 @@ document.getElementById('sortSelect').addEventListener('change', function() {
                 return 0;
         }
     });
-    
+
     products.forEach(product => productsList.appendChild(product));
 });
 
@@ -450,7 +449,7 @@ function applyPriceFilter() {
     const priceFrom = document.getElementById('priceFrom').value;
     const priceTo = document.getElementById('priceTo').value;
     const products = document.querySelectorAll('.product-item');
-    
+
     products.forEach(product => {
         const price = parseFloat(product.dataset.price);
         const show = (!priceFrom || price >= priceFrom) && (!priceTo || price <= priceTo);
@@ -465,7 +464,7 @@ document.querySelectorAll('.product-card').forEach(card => {
         this.style.transition = 'transform 0.3s ease';
         this.querySelector('.quick-actions').style.opacity = '1';
     });
-    
+
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0)';
         this.querySelector('.quick-actions').style.opacity = '0';
@@ -477,6 +476,12 @@ document.querySelectorAll('.quick-actions').forEach(actions => {
     actions.style.opacity = '0';
     actions.style.transition = 'opacity 0.3s ease';
 });
+
+function showProductModal(productId) {
+    // Implement the logic to show a modal with product details
+    // This is just a placeholder
+    alert('Show product modal for product ID: ' + productId);
+}
 </script>
 
 <style>

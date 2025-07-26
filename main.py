@@ -342,6 +342,8 @@ class Product(db.Model):
     stock = db.Column(db.Integer, default=0)
     category = db.Column(db.String(50))
     image_url = db.Column(db.String(200))
+    is_visible = db.Column(db.Boolean, default=True)
+    is_featured = db.Column(db.Boolean, default=False)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -395,6 +397,14 @@ class ProductForm(FlaskForm):
         ('potted', 'Горшечные растения')
     ])
     image_url = StringField('URL изображения')
+    is_visible = SelectField('Видимость', choices=[
+        ('True', 'Видимый'),
+        ('False', 'Скрытый')
+    ], default='True')
+    is_featured = SelectField('Рекомендуемый', choices=[
+        ('True', 'Да'),
+        ('False', 'Нет')
+    ], default='False')
     submit = SubmitField('Сохранить')
 
 class CheckoutForm(FlaskForm):
@@ -457,16 +467,16 @@ def inject_globals():
 
 @app.route('/')
 def index():
-    products = Product.query.limit(8).all()
+    products = Product.query.filter_by(is_visible=True).limit(8).all()
     return render_template('index.html', products=products)
 
 @app.route('/catalog')
 def catalog():
     category = request.args.get('category')
     if category:
-        products = Product.query.filter_by(category=category).all()
+        products = Product.query.filter_by(category=category, is_visible=True).all()
     else:
-        products = Product.query.all()
+        products = Product.query.filter_by(is_visible=True).all()
     return render_template('catalog.html', products=products, category=category)
 
 @app.route('/product/<int:id>')
@@ -787,7 +797,9 @@ def admin_add_product():
             price=float(form.price.data),
             stock=form.stock.data,
             category=form.category.data,
-            image_url=form.image_url.data
+            image_url=form.image_url.data,
+            is_visible=form.is_visible.data == 'True',
+            is_featured=form.is_featured.data == 'True'
         )
         db.session.add(product)
         db.session.commit()
@@ -813,6 +825,8 @@ def admin_edit_product(id):
         product.stock = form.stock.data
         product.category = form.category.data
         product.image_url = form.image_url.data
+        product.is_visible = form.is_visible.data == 'True'
+        product.is_featured = form.is_featured.data == 'True'
         db.session.commit()
         flash(get_text('product_updated') if get_text('product_updated') != 'product_updated' else 'Товар обновлен!', 'success')
         return redirect(url_for('admin_products'))
@@ -966,6 +980,21 @@ def admin_toggle_user_role(id):
     flash(message, 'success')
     return redirect(url_for('admin_users'))
 
+# API Routes
+@app.route('/api/product/<int:id>')
+def api_product(id):
+    product = Product.query.get_or_404(id)
+    return jsonify({
+        'id': product.id,
+        'name': product.name,
+        'description': product.description,
+        'price': product.price,
+        'stock': product.stock,
+        'category': product.category,
+        'image_url': product.image_url,
+        'is_visible': product.is_visible
+    })
+
 # Statistics route
 @app.route('/admin/statistics')
 @login_required
@@ -1103,14 +1132,23 @@ if __name__ == '__main__':
         # Добавляем товары по умолчанию
         if Product.query.count() == 0:
             sample_products = [
-                Product(name='Красные розы', description='Букет из 11 красных роз', price=2500, stock=50, category='roses', image_url='https://via.placeholder.com/300x300'),
-                Product(name='Белые тюльпаны', description='Букет из 15 белых тюльпанов', price=1800, stock=30, category='tulips', image_url='https://via.placeholder.com/300x300'),
-                Product(name='Орхидея фаленопсис', description='Белая орхидея в горшке', price=3500, stock=20, category='orchids', image_url='https://via.placeholder.com/300x300'),
-                Product(name='Свадебный букет', description='Роскошный свадебный букет', price=8000, stock=10, category='bouquets', image_url='https://via.placeholder.com/300x300'),
-                Product(name='Фикус Бенджамина', description='Красивое комнатное растение', price=1200, stock=25, category='potted', image_url='https://via.placeholder.com/300x300'),
+                Product(name='Красные розы', description='Букет из 11 красных роз', price=2500, stock=50, category='roses', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=True),
+                Product(name='Белые тюльпаны', description='Букет из 15 белых тюльпанов', price=1800, stock=30, category='tulips', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=False),
+                Product(name='Орхидея фаленопсис', description='Белая орхидея в горшке', price=3500, stock=20, category='orchids', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=True),
+                Product(name='Свадебный букет', description='Роскошный свадебный букет', price=8000, stock=10, category='bouquets', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=True),
+                Product(name='Фикус Бенджамина', description='Красивое комнатное растение', price=1200, stock=25, category='potted', image_url='https://via.placeholder.com/300x300', is_visible=True, is_featured=False),
             ]
             for product in sample_products:
                 db.session.add(product)
             db.session.commit()
+        
+        # Обновляем существующие товары, если у них нет новых полей
+        existing_products = Product.query.all()
+        for product in existing_products:
+            if not hasattr(product, 'is_visible') or product.is_visible is None:
+                product.is_visible = True
+            if not hasattr(product, 'is_featured') or product.is_featured is None:
+                product.is_featured = False
+        db.session.commit()
 
     app.run(host='0.0.0.0', port=5000, debug=True)
