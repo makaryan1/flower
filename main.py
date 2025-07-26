@@ -548,7 +548,7 @@ def checkout():
         # Get payment method and bank from form data
         payment_method = request.form.get('payment', 'cash')
         bank = request.form.get('bank', '') if payment_method == 'online' else None
-        
+
         order = Order(
             user_id=current_user.id,
             total_amount=total,
@@ -578,7 +578,15 @@ def checkout():
 
         db.session.commit()
         session.pop('cart', None)
+        # Handle online payment
+        if payment_method == 'online' and bank:
+            flash(f'Заказ оформлен! Перенаправляем на оплату через {bank.upper()}...', 'info')
+            return redirect(url_for('payment_redirect', order_id=order.id, bank=bank))
+        else:
+            flash('Заказ успешно оформлен!', 'success')
+            return redirect(url_for('order_success', order_id=order.id))
 
+    return render_template('checkout.html', form=form)
 
 @app.route('/payment_redirect/<int:order_id>/<bank>')
 @login_required
@@ -587,24 +595,24 @@ def payment_redirect(order_id, bank):
     if order.user_id != current_user.id:
         flash('Заказ не найден!', 'error')
         return redirect(url_for('index'))
-    
+
     # Simulate bank redirect URLs (в реальном проекте здесь будут настоящие API банков)
     bank_urls = {
         'tbc': f'https://ecommerce.tbc.ge/payment?amount={order.total_amount}&order_id={order.id}',
         'liberty': f'https://pay.libertybank.ge/payment?amount={order.total_amount}&order_id={order.id}',
         'georgia': f'https://ipay.bog.ge/payment?amount={order.total_amount}&order_id={order.id}'
     }
-    
+
     bank_names = {
         'tbc': 'TBC Bank',
         'liberty': 'Liberty Bank', 
         'georgia': 'საქართველოს ბანკი'
     }
-    
+
     if bank not in bank_urls:
         flash('Неподдерживаемый банк!', 'error')
         return redirect(url_for('order_success', order_id=order.id))
-    
+
     return render_template('payment_redirect.html', 
                          order=order, 
                          bank_url=bank_urls[bank],
@@ -617,12 +625,12 @@ def payment_success(order_id):
     if order.user_id != current_user.id:
         flash('Заказ не найден!', 'error')
         return redirect(url_for('index'))
-    
+
     # Update payment status
     order.payment_status = 'completed'
     order.status = 'confirmed'
     db.session.commit()
-    
+
     flash('Оплата прошла успешно! Ваш заказ подтвержден.', 'success')
     return redirect(url_for('order_success', order_id=order.id))
 
@@ -633,24 +641,12 @@ def payment_failed(order_id):
     if order.user_id != current_user.id:
         flash('Заказ не найден!', 'error')
         return redirect(url_for('index'))
-    
+
     order.payment_status = 'failed'
     db.session.commit()
-    
+
     flash('Оплата не прошла. Вы можете попробовать еще раз или выбрать другой способ оплаты.', 'warning')
     return redirect(url_for('order_success', order_id=order.id))
-
-
-        
-        # Handle online payment
-        if payment_method == 'online' and bank:
-            flash(f'Заказ оформлен! Перенаправляем на оплату через {bank.upper()}...', 'info')
-            return redirect(url_for('payment_redirect', order_id=order.id, bank=bank))
-        else:
-            flash('Заказ успешно оформлен!', 'success')
-            return redirect(url_for('order_success', order_id=order.id))
-
-    return render_template('checkout.html', form=form)
 
 @app.route('/order_success/<int:order_id>')
 @login_required
@@ -829,16 +825,16 @@ def courier_dashboard():
 
     # My assigned orders
     my_orders = Order.query.filter_by(courier_id=current_user.id).order_by(Order.created_at.desc()).all()
-    
+
     # Available orders (not assigned to any courier)
     available_orders = Order.query.filter_by(courier_id=None, status='confirmed').order_by(Order.created_at.desc()).all()
-    
+
     # Statistics for courier
     total_deliveries = Order.query.filter_by(courier_id=current_user.id, status='delivered').count()
     pending_deliveries = Order.query.filter_by(courier_id=current_user.id).filter(
         Order.status.in_(['confirmed', 'shipped'])
     ).count()
-    
+
     return render_template('courier/dashboard.html', 
                          orders=my_orders,
                          available_orders=available_orders,
@@ -852,7 +848,7 @@ def courier_take_order(order_id):
     if not current_user.is_courier and not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     order = Order.query.get_or_404(order_id)
     if order.courier_id is None and order.status == 'confirmed':
         order.courier_id = current_user.id
@@ -861,7 +857,7 @@ def courier_take_order(order_id):
         flash('Заказ взят в работу!', 'success')
     else:
         flash('Заказ уже назначен или недоступен', 'warning')
-    
+
     return redirect(url_for('courier_dashboard'))
 
 @app.route('/courier/order/<int:id>/update_status', methods=['POST'])
@@ -894,7 +890,7 @@ def admin_users():
     total_users = User.query.count()
     total_admins = User.query.filter_by(is_admin=True).count()
     total_couriers = User.query.filter_by(is_courier=True).count()
-    
+
     return render_template('admin/users.html', 
                          users=users,
                          total_users=total_users,
@@ -934,13 +930,13 @@ def admin_statistics():
     total_revenue = db.session.query(db.func.sum(Order.total_amount)).scalar() or 0
     total_products = Product.query.count()
     total_users = User.query.count()
-    
+
     # Recent orders
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
-    
+
     # Low stock products
     low_stock_products = Product.query.filter(Product.stock <= 5).all()
-    
+
     # Best selling products
     best_products = db.session.query(
         Product.name, 
@@ -952,7 +948,7 @@ def admin_statistics():
 
     # Orders by status
     status_stats = db.session.query(Order.status, db.func.count(Order.id)).group_by(Order.status).all()
-    
+
     # Monthly revenue
     from datetime import datetime, timedelta
     last_30_days = datetime.utcnow() - timedelta(days=30)
@@ -979,14 +975,14 @@ def admin_bulk_update_products():
     if not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     action = request.form.get('action')
     product_ids = request.form.getlist('product_ids')
-    
+
     if not product_ids:
         flash('Выберите товары для операции', 'warning')
         return redirect(url_for('admin_products'))
-    
+
     if action == 'delete':
         Product.query.filter(Product.id.in_(product_ids)).delete(synchronize_session=False)
         flash(f'Удалено товаров: {len(product_ids)}', 'success')
@@ -996,7 +992,7 @@ def admin_bulk_update_products():
             {'stock': new_stock}, synchronize_session=False
         )
         flash(f'Обновлен склад для {len(product_ids)} товаров', 'success')
-    
+
     db.session.commit()
     return redirect(url_for('admin_products'))
 
@@ -1007,14 +1003,14 @@ def admin_bulk_update_orders():
     if not current_user.is_admin:
         flash(get_text('access_denied'), 'error')
         return redirect(url_for('index'))
-    
+
     action = request.form.get('action')
     order_ids = request.form.getlist('order_ids')
-    
+
     if not order_ids:
         flash('Выберите заказы для операции', 'warning')
         return redirect(url_for('admin_orders'))
-    
+
     if action == 'confirm':
         Order.query.filter(Order.id.in_(order_ids)).update(
             {'status': 'confirmed'}, synchronize_session=False
@@ -1025,7 +1021,7 @@ def admin_bulk_update_orders():
             {'status': 'cancelled'}, synchronize_session=False
         )
         flash(f'Отменено заказов: {len(order_ids)}', 'success')
-    
+
     db.session.commit()
     return redirect(url_for('admin_orders'))
 
