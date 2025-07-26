@@ -550,65 +550,86 @@ def checkout():
         return redirect(url_for('cart'))
 
     form = CheckoutForm()
-    if form.validate_on_submit():
-        # Создаем заказ
-        total = 0
-        cart = session['cart']
-
-        for product_id, quantity in cart.items():
-            product = Product.query.get(int(product_id))
-            if product:
-                total += product.price * quantity
-
-        # Get payment method and bank from form data
+    
+    if request.method == 'POST':
+        # Manual form validation
+        district = request.form.get('district')
+        shipping_address = request.form.get('shipping_address', '').strip()
+        phone = request.form.get('phone', '').strip()
         payment_method = request.form.get('payment', 'cash')
         bank = request.form.get('bank', '') if payment_method == 'online' else None
         delivery_method = request.form.get('delivery', 'standard')
         
-        # Calculate delivery cost
-        delivery_cost = 0
-        if delivery_method != 'pickup':
-            delivery_cost = get_delivery_cost(form.district.data)
+        # Validation
+        errors = []
+        if not district:
+            errors.append('Выберите район доставки')
+        if not shipping_address:
+            errors.append('Укажите адрес доставки')
+        if not phone:
+            errors.append('Укажите номер телефона')
+        if payment_method == 'online' and not bank:
+            errors.append('Выберите банк для онлайн-оплаты')
         
-        # Add delivery cost to total
-        final_total = total + delivery_cost
+        if not errors:
+            # Создаем заказ
+            total = 0
+            cart = session['cart']
 
-        order = Order(
-            user_id=current_user.id,
-            total_amount=final_total,
-            shipping_address=form.shipping_address.data,
-            district=form.district.data,
-            phone=form.phone.data,
-            payment_method=payment_method,
-            bank=bank,
-            payment_status='pending' if payment_method == 'online' else 'not_required'
-        )
-        db.session.add(order)
-        db.session.flush()
+            for product_id, quantity in cart.items():
+                product = Product.query.get(int(product_id))
+                if product:
+                    total += product.price * quantity
 
-        # Добавляем товары в заказ
-        for product_id, quantity in cart.items():
-            product = Product.query.get(int(product_id))
-            if product:
-                order_item = OrderItem(
-                    order_id=order.id,
-                    product_id=product.id,
-                    quantity=quantity,
-                    price=product.price
-                )
-                db.session.add(order_item)
-                # Уменьшаем количество на складе
-                product.stock -= quantity
+            # Calculate delivery cost
+            delivery_cost = 0
+            if delivery_method != 'pickup':
+                delivery_cost = get_delivery_cost(district)
+            
+            # Add delivery cost to total
+            final_total = total + delivery_cost
 
-        db.session.commit()
-        session.pop('cart', None)
-        # Handle online payment
-        if payment_method == 'online' and bank:
-            flash(f'Заказ оформлен! Перенаправляем на оплату через {bank.upper()}...', 'info')
-            return redirect(url_for('payment_redirect', order_id=order.id, bank=bank))
+            order = Order(
+                user_id=current_user.id,
+                total_amount=final_total,
+                shipping_address=shipping_address,
+                district=district,
+                phone=phone,
+                payment_method=payment_method,
+                bank=bank,
+                payment_status='pending' if payment_method == 'online' else 'not_required'
+            )
+            db.session.add(order)
+            db.session.flush()
+
+            # Добавляем товары в заказ
+            for product_id, quantity in cart.items():
+                product = Product.query.get(int(product_id))
+                if product:
+                    order_item = OrderItem(
+                        order_id=order.id,
+                        product_id=product.id,
+                        quantity=quantity,
+                        price=product.price
+                    )
+                    db.session.add(order_item)
+                    # Уменьшаем количество на складе
+                    product.stock -= quantity
+
+            db.session.commit()
+            session.pop('cart', None)
+            
+            # Handle payment method
+            if payment_method == 'online' and bank:
+                flash(f'Заказ оформлен! Перенаправляем на оплату через {bank.upper()}...', 'info')
+                return redirect(url_for('payment_redirect', order_id=order.id, bank=bank))
+            else:
+                flash('Заказ успешно оформлен!', 'success')
+                return redirect(url_for('order_success', order_id=order.id))
         else:
-            flash('Заказ успешно оформлен!', 'success')
-            return redirect(url_for('order_success', order_id=order.id))
+            # Show validation errors
+            for error in errors:
+                flash(error, 'error')
 
     return render_template('checkout.html', form=form)
 

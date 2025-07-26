@@ -50,6 +50,9 @@
                     <div class="card-body">
                         <form method="POST" id="checkout-form">
                             {{ form.hidden_tag() }}
+                            <input type="hidden" name="payment" id="payment-method" value="cash">
+                            <input type="hidden" name="bank" id="selected-bank" value="">
+                            <input type="hidden" name="delivery" id="delivery-method" value="standard">
                             
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -455,13 +458,16 @@ document.querySelectorAll('.delivery-option').forEach(option => {
         document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('selected'));
         this.classList.add('selected');
         this.querySelector('input[type="radio"]').checked = true;
+        
+        // Update hidden field
+        document.getElementById('delivery-method').value = this.dataset.option;
         updateDeliveryCost();
     });
 });
 
 function updateDeliveryCost() {
     const district = document.querySelector('select[name="district"]').value;
-    const deliveryOption = document.querySelector('input[name="delivery"]:checked').value;
+    const deliveryOption = document.getElementById('delivery-method').value;
     
     let deliveryCost = 0;
     
@@ -494,6 +500,13 @@ function updateDeliveryCost() {
     }
     
     // Recalculate final price
+    {% set total = 0 %}
+    {% for product_id, quantity in session.cart.items() %}
+        {% set product = get_product(product_id) %}
+        {% if product %}
+            {% set total = total + (product.price * quantity) %}
+        {% endif %}
+    {% endfor %}
     const basePrice = {{ total * 0.9 if total else 0 }};
     document.getElementById('final-price').textContent = '₾' + Math.round(basePrice + deliveryCost);
 }
@@ -505,6 +518,9 @@ document.querySelectorAll('.payment-option').forEach(option => {
         this.classList.add('selected');
         this.querySelector('input[type="radio"]').checked = true;
         
+        // Update hidden field
+        document.getElementById('payment-method').value = this.dataset.option;
+        
         // Show/hide bank selection
         const bankSelection = document.querySelector('.bank-selection');
         if (this.dataset.option === 'online') {
@@ -514,6 +530,7 @@ document.querySelectorAll('.payment-option').forEach(option => {
             // Clear bank selection
             document.querySelectorAll('.bank-option').forEach(bank => bank.classList.remove('selected'));
             document.querySelectorAll('input[name="bank"]').forEach(input => input.checked = false);
+            document.getElementById('selected-bank').value = '';
         }
     });
 });
@@ -524,6 +541,9 @@ document.querySelectorAll('.bank-option').forEach(option => {
         document.querySelectorAll('.bank-option').forEach(opt => opt.classList.remove('selected'));
         this.classList.add('selected');
         this.querySelector('input[type="radio"]').checked = true;
+        
+        // Update hidden field
+        document.getElementById('selected-bank').value = this.dataset.bank;
     });
 });
 
@@ -532,7 +552,7 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     const district = document.querySelector('select[name="district"]').value;
     const address = document.querySelector('textarea[name="shipping_address"]').value;
     const phone = document.querySelector('input[name="phone"]').value;
-    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+    const paymentMethod = document.getElementById('payment-method').value;
     
     if (!district || !address.trim() || !phone.trim()) {
         e.preventDefault();
@@ -542,7 +562,7 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     
     // Check if online payment is selected but no bank is chosen
     if (paymentMethod === 'online') {
-        const selectedBank = document.querySelector('input[name="bank"]:checked');
+        const selectedBank = document.getElementById('selected-bank').value;
         if (!selectedBank) {
             e.preventDefault();
             alert('Пожалуйста, выберите банк для онлайн-оплаты');
