@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block title %}{{ get_text('cart') }} - {{ get_text('site_title') }}{% endblock %}
@@ -171,11 +170,13 @@
                                 </div>
 
                                 {% if current_user.is_authenticated %}
+                                    <!-- Place Order Button -->
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-lg text-white fw-semibold" 
                                                 style="background: linear-gradient(45deg, #FF69B4, #FF1493);"
                                                 onclick="proceedToCheckout()" id="checkout-btn" disabled>
                                             <i class="fas fa-credit-card me-2"></i>Оформить заказ
+                                            <span class="badge bg-light text-dark ms-2" id="selected-items-badge">0</span>
                                         </button>
                                         <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary">
                                             <i class="fas fa-shopping-bag me-2"></i>Продолжить покупки
@@ -278,28 +279,29 @@ function updateTotal() {
     const checkboxes = document.querySelectorAll('.item-checkbox:checked');
     let total = 0;
     let count = 0;
-    
+
     checkboxes.forEach(checkbox => {
         total += parseFloat(checkbox.dataset.price);
         count++;
     });
-    
+
     document.getElementById('selected-count').textContent = count;
     document.getElementById('selected-total').textContent = '₽' + total.toFixed(0);
-    
+
     // Calculate delivery
     const deliveryCost = total >= 2000 ? 0 : 200;
     document.getElementById('delivery-cost').textContent = deliveryCost === 0 ? 'Бесплатно' : '₽' + deliveryCost;
-    
+
     // Final total (with discount)
     const discount = 200;
     const finalTotal = total - discount + deliveryCost;
     document.getElementById('final-total').textContent = '₽' + Math.max(0, finalTotal).toFixed(0);
-    
+
     // Enable/disable checkout button
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn) {
         checkoutBtn.disabled = count === 0;
+		document.getElementById('selected-items-badge').textContent = count;
     }
 }
 
@@ -339,7 +341,7 @@ document.querySelectorAll('.recommendation-card').forEach(card => {
         this.style.transform = 'scale(1.05)';
         this.style.transition = 'transform 0.3s ease';
     });
-    
+
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'scale(1)';
     });
@@ -351,7 +353,7 @@ document.querySelectorAll('.category-card').forEach(card => {
         this.style.transform = 'translateY(-5px)';
         this.style.transition = 'transform 0.3s ease';
     });
-    
+
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0)';
     });

@@ -169,31 +169,62 @@
                                 <div class="d-flex align-items-center">
                                     <input type="radio" name="payment" value="cash" class="form-check-input me-3" checked>
                                     <i class="fas fa-money-bill-wave text-success me-3 fa-2x"></i>
-                                    <div>
+                                    <div class="flex-grow-1">
                                         <h6 class="mb-1">Наличными при получении</h6>
-                                        <small class="text-muted">Оплата курьеру</small>
+                                        <small class="text-muted">Полная сумма оплачивается курьеру</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success">Популярно</span>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="payment-option border rounded p-3 mb-3" data-option="card">
+                            <div class="payment-option border rounded p-3 mb-3" data-option="online">
                                 <div class="d-flex align-items-center">
-                                    <input type="radio" name="payment" value="card" class="form-check-input me-3">
+                                    <input type="radio" name="payment" value="online" class="form-check-input me-3">
                                     <i class="fas fa-credit-card text-primary me-3 fa-2x"></i>
-                                    <div>
-                                        <h6 class="mb-1">Банковской картой</h6>
-                                        <small class="text-muted">Visa, MasterCard, МИР</small>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">Онлайн оплата</h6>
+                                        <small class="text-muted">Безопасная оплата через банк</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary">Быстро</span>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="payment-option border rounded p-3" data-option="transfer">
-                                <div class="d-flex align-items-center">
-                                    <input type="radio" name="payment" value="transfer" class="form-check-input me-3">
-                                    <i class="fas fa-university text-warning me-3 fa-2x"></i>
-                                    <div>
-                                        <h6 class="mb-1">Банковский перевод</h6>
-                                        <small class="text-muted">На расчетный счет</small>
+                                
+                                <!-- Bank Selection (initially hidden) -->
+                                <div class="bank-selection mt-3" style="display: none;">
+                                    <h6 class="mb-3">Выберите банк для оплаты:</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="bank-option border rounded p-3 text-center" data-bank="tbc">
+                                                <input type="radio" name="bank" value="tbc" class="form-check-input d-none">
+                                                <img src="https://via.placeholder.com/60x30/0066CC/ffffff?text=TBC" class="mb-2" style="height: 30px;">
+                                                <div class="small fw-semibold">TBC Bank</div>
+                                                <div class="text-muted small">Комиссия 0%</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bank-option border rounded p-3 text-center" data-bank="liberty">
+                                                <input type="radio" name="bank" value="liberty" class="form-check-input d-none">
+                                                <img src="https://via.placeholder.com/60x30/FF6B35/ffffff?text=Liberty" class="mb-2" style="height: 30px;">
+                                                <div class="small fw-semibold">Liberty Bank</div>
+                                                <div class="text-muted small">Комиссия 0%</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="bank-option border rounded p-3 text-center" data-bank="georgia">
+                                                <input type="radio" name="bank" value="georgia" class="form-check-input d-none">
+                                                <img src="https://via.placeholder.com/60x30/C41E3A/ffffff?text=BOG" class="mb-2" style="height: 30px;">
+                                                <div class="small fw-semibold">საქართველოს ბანკი</div>
+                                                <div class="text-muted small">Комиссия 0%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info mt-3">
+                                        <i class="fas fa-shield-alt me-2"></i>
+                                        <small>После нажатия "Оформить заказ" вы будете перенаправлены на безопасную страницу банка для оплаты</small>
                                     </div>
                                 </div>
                             </div>
@@ -390,6 +421,38 @@
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
 }
+
+.bank-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bank-option:hover {
+    border-color: #0d6efd !important;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+    transform: translateY(-2px);
+}
+
+.bank-option.selected {
+    border-color: #0d6efd !important;
+    background-color: #f8f9ff;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+}
+
+.bank-selection {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>
@@ -430,6 +493,26 @@ document.querySelectorAll('.payment-option').forEach(option => {
         document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
         this.classList.add('selected');
         this.querySelector('input[type="radio"]').checked = true;
+        
+        // Show/hide bank selection
+        const bankSelection = document.querySelector('.bank-selection');
+        if (this.dataset.option === 'online') {
+            bankSelection.style.display = 'block';
+        } else {
+            bankSelection.style.display = 'none';
+            // Clear bank selection
+            document.querySelectorAll('.bank-option').forEach(bank => bank.classList.remove('selected'));
+            document.querySelectorAll('input[name="bank"]').forEach(input => input.checked = false);
+        }
+    });
+});
+
+// Bank selection
+document.querySelectorAll('.bank-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.bank-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input[type="radio"]').checked = true;
     });
 });
 
@@ -438,6 +521,7 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     const district = document.querySelector('select[name="district"]').value;
     const address = document.querySelector('textarea[name="shipping_address"]').value;
     const phone = document.querySelector('input[name="phone"]').value;
+    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
     
     if (!district || !address.trim() || !phone.trim()) {
         e.preventDefault();
@@ -445,10 +529,25 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
         return;
     }
     
+    // Check if online payment is selected but no bank is chosen
+    if (paymentMethod === 'online') {
+        const selectedBank = document.querySelector('input[name="bank"]:checked');
+        if (!selectedBank) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите банк для онлайн-оплаты');
+            return;
+        }
+    }
+    
     // Show loading state
     const submitBtn = document.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Оформляем заказ...';
+    
+    if (paymentMethod === 'online') {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Перенаправляем в банк...';
+    } else {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Оформляем заказ...';
+    }
 });
 </script>
 {% endblock %}

@@ -353,6 +353,9 @@ class Order(db.Model):
     shipping_address = db.Column(db.Text)
     district = db.Column(db.String(100))
     phone = db.Column(db.String(20))
+    payment_method = db.Column(db.String(20), default='cash')
+    bank = db.Column(db.String(50))
+    payment_status = db.Column(db.String(20), default='pending')
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):
@@ -408,6 +411,16 @@ class CheckoutForm(FlaskForm):
                                    render_kw={"placeholder": "Улица, дом, квартира"})
     phone = StringField('Телефон', validators=[DataRequired()], 
                        render_kw={"placeholder": "+995 XXX XXX XXX"})
+    payment_method = SelectField('Способ оплаты', choices=[
+        ('cash', 'Наличными при получении'),
+        ('online', 'Онлайн оплата')
+    ], default='cash')
+    bank = SelectField('Банк', choices=[
+        ('', 'Выберите банк'),
+        ('tbc', 'TBC Bank'),
+        ('liberty', 'Liberty Bank'),
+        ('georgia', 'საქართველოს ბანკი')
+    ])
     submit = SubmitField('Оформить заказ')
 
 # Routes
@@ -532,12 +545,19 @@ def checkout():
             if product:
                 total += product.price * quantity
 
+        # Get payment method and bank from form data
+        payment_method = request.form.get('payment', 'cash')
+        bank = request.form.get('bank', '') if payment_method == 'online' else None
+        
         order = Order(
             user_id=current_user.id,
             total_amount=total,
             shipping_address=form.shipping_address.data,
             district=form.district.data,
-            phone=form.phone.data
+            phone=form.phone.data,
+            payment_method=payment_method,
+            bank=bank,
+            payment_status='pending' if payment_method == 'online' else 'not_required'
         )
         db.session.add(order)
         db.session.flush()
@@ -558,8 +578,77 @@ def checkout():
 
         db.session.commit()
         session.pop('cart', None)
-        flash('Заказ успешно оформлен!', 'success')
+
+
+@app.route('/payment_redirect/<int:order_id>/<bank>')
+@login_required
+def payment_redirect(order_id, bank):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.id:
+        flash('Заказ не найден!', 'error')
+        return redirect(url_for('index'))
+    
+    # Simulate bank redirect URLs (в реальном проекте здесь будут настоящие API банков)
+    bank_urls = {
+        'tbc': f'https://ecommerce.tbc.ge/payment?amount={order.total_amount}&order_id={order.id}',
+        'liberty': f'https://pay.libertybank.ge/payment?amount={order.total_amount}&order_id={order.id}',
+        'georgia': f'https://ipay.bog.ge/payment?amount={order.total_amount}&order_id={order.id}'
+    }
+    
+    bank_names = {
+        'tbc': 'TBC Bank',
+        'liberty': 'Liberty Bank', 
+        'georgia': 'საქართველოს ბანკი'
+    }
+    
+    if bank not in bank_urls:
+        flash('Неподдерживаемый банк!', 'error')
         return redirect(url_for('order_success', order_id=order.id))
+    
+    return render_template('payment_redirect.html', 
+                         order=order, 
+                         bank_url=bank_urls[bank],
+                         bank_name=bank_names[bank])
+
+@app.route('/payment_success/<int:order_id>')
+@login_required  
+def payment_success(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.id:
+        flash('Заказ не найден!', 'error')
+        return redirect(url_for('index'))
+    
+    # Update payment status
+    order.payment_status = 'completed'
+    order.status = 'confirmed'
+    db.session.commit()
+    
+    flash('Оплата прошла успешно! Ваш заказ подтвержден.', 'success')
+    return redirect(url_for('order_success', order_id=order.id))
+
+@app.route('/payment_failed/<int:order_id>')
+@login_required
+def payment_failed(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.id:
+        flash('Заказ не найден!', 'error')
+        return redirect(url_for('index'))
+    
+    order.payment_status = 'failed'
+    db.session.commit()
+    
+    flash('Оплата не прошла. Вы можете попробовать еще раз или выбрать другой способ оплаты.', 'warning')
+    return redirect(url_for('order_success', order_id=order.id))
+
+
+        
+        # Handle online payment
+        if payment_method == 'online' and bank:
+            flash(f'Заказ оформлен! Перенаправляем на оплату через {bank.upper()}...', 'info')
+            return redirect(url_for('payment_redirect', order_id=order.id, bank=bank))
+        else:
+            flash('Заказ успешно оформлен!', 'success')
+            return redirect(url_for('order_success', order_id=order.id))
 
     return render_template('checkout.html', form=form)
 
