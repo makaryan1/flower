@@ -1355,8 +1355,8 @@ if __name__ == '__main__':
                 db.session.commit()
                 print("Курьер создан: courier/courier123")
 
-        # Создаем базовые настройки сайта
-        if not SiteSettings.query.first():
+            # Создаем базовые настройки сайта
+            if not SiteSettings.query.first():
             settings = SiteSettings()
             db.session.add(settings)
             db.session.commit()
