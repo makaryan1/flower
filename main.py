@@ -13,6 +13,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Supabase configuration
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+
 # Multilingual translations
 TRANSLATIONS = {
     'ru': {
@@ -336,13 +340,18 @@ def get_text(key):
     return TRANSLATIONS.get(lang, TRANSLATIONS['ru']).get(key, key)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+app.config['SECRET_KEY'] = 'your-secret-key-here'
 
-# Supabase PostgreSQL configuration
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    # Use Supabase PostgreSQL
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+# Supabase configuration
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+
+if SUPABASE_URL:
+    # Construct PostgreSQL URL from Supabase URL
+    # Convert https://xxx.supabase.co to postgresql://postgres:[password]@db.xxx.supabase.co:5432/postgres
+    supabase_host = SUPABASE_URL.replace('https://', '').replace('http://', '')
+    # For now, fallback to SQLite if no full DATABASE_URL is provided
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flower_shop.db'
 else:
     # Fallback to SQLite for local development
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flower_shop.db'
@@ -1320,7 +1329,7 @@ if __name__ == '__main__':
 
             # Создаем админа по умолчанию если его нет
             admin = User.query.filter_by(username='admin').first()
-        if not admin:
+            if not admin:
             admin = User(
                 username='admin',
                 email='admin@flowershop.com',
