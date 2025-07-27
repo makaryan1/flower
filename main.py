@@ -8,6 +8,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Multilingual translations
 TRANSLATIONS = {
@@ -332,9 +336,22 @@ def get_text(key):
     return TRANSLATIONS.get(lang, TRANSLATIONS['ru']).get(key, key)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flower_shop.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+
+# Supabase PostgreSQL configuration
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    # Use Supabase PostgreSQL
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    # Fallback to SQLite for local development
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flower_shop.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+}
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -1296,7 +1313,10 @@ def admin_bulk_update_orders():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        try:
+            # Create all tables
+            db.create_all()
+            print("Database tables created successfully")
 
         # Создаем админа по умолчанию если его нет
         admin = User.query.filter_by(username='admin').first()
@@ -1365,5 +1385,11 @@ if __name__ == '__main__':
                 db.session.add(product)
             db.session.commit()
             print("Добавлены тестовые товары")
-
+            
+        except Exception as e:
+            print(f"Database initialization error: {e}")
+            # For PostgreSQL, we might need to handle specific connection issues
+            if "does not exist" in str(e):
+                print("Database connection issue. Please check your Supabase credentials.")
+            
     app.run(host='0.0.0.0', port=5000, debug=True)
