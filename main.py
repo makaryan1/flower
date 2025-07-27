@@ -1341,19 +1341,19 @@ if __name__ == '__main__':
                 db.session.commit()
                 print("Админ создан: admin/admin123")
 
-        # Создаем курьера по умолчанию если его нет
-        courier = User.query.filter_by(username='courier').first()
-        if not courier:
-            courier = User(
-                username='courier',
-                email='courier@flowershop.com',
-                phone='+995 555 654 321',
-                password_hash=generate_password_hash('courier123'),
-                is_courier=True
-            )
-            db.session.add(courier)
-            db.session.commit()
-            print("Курьер создан: courier/courier123")
+            # Создаем курьера по умолчанию если его нет
+            courier = User.query.filter_by(username='courier').first()
+            if not courier:
+                courier = User(
+                    username='courier',
+                    email='courier@flowershop.com',
+                    phone='+995 555 654 321',
+                    password_hash=generate_password_hash('courier123'),
+                    is_courier=True
+                )
+                db.session.add(courier)
+                db.session.commit()
+                print("Курьер создан: courier/courier123")
 
         # Создаем базовые настройки сайта
         if not SiteSettings.query.first():
