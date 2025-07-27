@@ -423,7 +423,7 @@ class OrderItem(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 # Forms
 class LoginForm(FlaskForm):
@@ -519,7 +519,7 @@ def set_language(language):
     return redirect(request.referrer or url_for('index'))
 
 def get_product(product_id):
-    return Product.query.get(int(product_id))
+    return db.session.get(Product, int(product_id))
 
 def get_couriers():
     return User.query.filter_by(is_courier=True).all()
