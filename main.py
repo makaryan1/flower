@@ -1318,8 +1318,8 @@ if __name__ == '__main__':
             db.create_all()
             print("Database tables created successfully")
 
-        # Создаем админа по умолчанию если его нет
-        admin = User.query.filter_by(username='admin').first()
+            # Создаем админа по умолчанию если его нет
+            admin = User.query.filter_by(username='admin').first()
         if not admin:
             admin = User(
                 username='admin',
