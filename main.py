@@ -1330,16 +1330,16 @@ if __name__ == '__main__':
             # Создаем админа по умолчанию если его нет
             admin = User.query.filter_by(username='admin').first()
             if not admin:
-            admin = User(
-                username='admin',
-                email='admin@flowershop.com',
-                phone='+995 555 123 456',
-                password_hash=generate_password_hash('admin123'),
-                is_admin=True
-            )
-            db.session.add(admin)
-            db.session.commit()
-            print("Админ создан: admin/admin123")
+                admin = User(
+                    username='admin',
+                    email='admin@flowershop.com',
+                    phone='+995 555 123 456',
+                    password_hash=generate_password_hash('admin123'),
+                    is_admin=True
+                )
+                db.session.add(admin)
+                db.session.commit()
+                print("Админ создан: admin/admin123")
 
         # Создаем курьера по умолчанию если его нет
         courier = User.query.filter_by(username='courier').first()
