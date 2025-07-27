@@ -40,6 +40,18 @@
                         </div>
                         
                         <div class="mb-3">
+                            {{ form.phone.label(class="form-label") }}
+                            {{ form.phone(class="form-control", placeholder=get_text('phone')) }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.phone.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
                             {{ form.password.label(class="form-label") }}
                             {{ form.password(class="form-control", placeholder=get_text('password')) }}
                             {% if form.password.errors %}

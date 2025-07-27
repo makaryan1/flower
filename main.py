@@ -342,10 +342,43 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # Models
+class SiteSettings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    site_name = db.Column(db.String(100), default='FlowerShop')
+    site_description = db.Column(db.Text, default='Лучший цветочный магазин в Ахалцихе')
+    contact_phone = db.Column(db.String(20), default='+995 XXX XXX XXX')
+    contact_email = db.Column(db.String(100), default='info@flowershop.com')
+    contact_address = db.Column(db.Text, default='г. Ахалцихе, ул. Руставели, д. 1')
+    delivery_cost_city = db.Column(db.Float, default=5.0)
+    delivery_cost_village = db.Column(db.Float, default=10.0)
+    currency = db.Column(db.String(10), default='₾')
+    logo_url = db.Column(db.String(200))
+    hero_title = db.Column(db.String(200), default='Добро пожаловать в FlowerShop')
+    hero_subtitle = db.Column(db.Text, default='Свежие цветы и букеты с доставкой по Ахалцихе')
+    
+    @staticmethod
+    def get_settings():
+        settings = SiteSettings.query.first()
+        if not settings:
+            settings = SiteSettings()
+            db.session.add(settings)
+            db.session.commit()
+        return settings
+
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    slug = db.Column(db.String(100), unique=True, nullable=False)
+    description = db.Column(db.Text)
+    image_url = db.Column(db.String(200))
+    is_active = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    phone = db.Column(db.String(20))
     password_hash = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_courier = db.Column(db.Boolean, default=False)
@@ -359,9 +392,11 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, default=0)
     category = db.Column(db.String(50))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     image_url = db.Column(db.String(200))
     is_visible = db.Column(db.Boolean, default=True)
     is_featured = db.Column(db.Boolean, default=False)
+    category_obj = db.relationship('Category', backref='products')
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -399,8 +434,32 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired(), Length(min=4, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Телефон', validators=[DataRequired()], render_kw={"placeholder": "+995 XXX XXX XXX"})
     password = PasswordField('Пароль', validators=[DataRequired(), Length(min=6)])
     submit = SubmitField('Зарегистрироваться')
+
+class SiteSettingsForm(FlaskForm):
+    site_name = StringField('Название сайта', validators=[DataRequired()])
+    site_description = TextAreaField('Описание сайта')
+    contact_phone = StringField('Телефон')
+    contact_email = StringField('Email')
+    contact_address = TextAreaField('Адрес')
+    delivery_cost_city = DecimalField('Стоимость доставки по городу', validators=[NumberRange(min=0)])
+    delivery_cost_village = DecimalField('Стоимость доставки по деревням', validators=[NumberRange(min=0)])
+    currency = StringField('Валюта')
+    logo_url = StringField('URL логотипа')
+    hero_title = StringField('Заголовок главной страницы')
+    hero_subtitle = TextAreaField('Подзаголовок главной страницы')
+    submit = SubmitField('Сохранить настройки')
+
+class CategoryForm(FlaskForm):
+    name = StringField('Название категории', validators=[DataRequired()])
+    slug = StringField('Slug (URL)', validators=[DataRequired()])
+    description = TextAreaField('Описание')
+    image_url = StringField('URL изображения')
+    is_active = SelectField('Активность', choices=[('True', 'Активная'), ('False', 'Неактивная')], default='True')
+    sort_order = IntegerField('Порядок сортировки', default=0)
+    submit = SubmitField('Сохранить')
 
 class ProductForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
@@ -481,7 +540,18 @@ def get_delivery_cost(district):
 
 @app.context_processor
 def inject_globals():
-    return dict(get_language=get_language, get_text=get_text, get_product=get_product, Product=Product, get_couriers=get_couriers, get_delivery_cost=get_delivery_cost)
+    settings = SiteSettings.get_settings()
+    categories = Category.query.filter_by(is_active=True).order_by(Category.sort_order).all()
+    return dict(
+        get_language=get_language, 
+        get_text=get_text, 
+        get_product=get_product, 
+        Product=Product, 
+        get_couriers=get_couriers, 
+        get_delivery_cost=get_delivery_cost,
+        site_settings=settings,
+        categories=categories
+    )
 
 @app.route('/')
 def index():
@@ -764,6 +834,7 @@ def register():
             user = User(
                 username=form.username.data,
                 email=form.email.data,
+                phone=form.phone.data,
                 password_hash=generate_password_hash(form.password.data)
             )
             db.session.add(user)
@@ -959,6 +1030,108 @@ def courier_update_status(id):
     flash(get_text('order_updated') if get_text('order_updated') != 'order_updated' else 'Статус заказа обновлен!', 'success')
     return redirect(url_for('courier_dashboard'))
 
+# Admin settings
+@app.route('/admin/settings', methods=['GET', 'POST'])
+@login_required
+def admin_settings():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+
+    settings = SiteSettings.get_settings()
+    form = SiteSettingsForm(obj=settings)
+
+    if form.validate_on_submit():
+        settings.site_name = form.site_name.data
+        settings.site_description = form.site_description.data
+        settings.contact_phone = form.contact_phone.data
+        settings.contact_email = form.contact_email.data
+        settings.contact_address = form.contact_address.data
+        settings.delivery_cost_city = float(form.delivery_cost_city.data)
+        settings.delivery_cost_village = float(form.delivery_cost_village.data)
+        settings.currency = form.currency.data
+        settings.logo_url = form.logo_url.data
+        settings.hero_title = form.hero_title.data
+        settings.hero_subtitle = form.hero_subtitle.data
+        db.session.commit()
+        flash('Настройки сайта обновлены!', 'success')
+        return redirect(url_for('admin_settings'))
+
+    return render_template('admin/settings.html', form=form, settings=settings)
+
+# Admin categories
+@app.route('/admin/categories')
+@login_required
+def admin_categories():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+
+    categories = Category.query.order_by(Category.sort_order).all()
+    return render_template('admin/categories.html', categories=categories)
+
+@app.route('/admin/category/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_category():
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+
+    form = CategoryForm()
+    if form.validate_on_submit():
+        category = Category(
+            name=form.name.data,
+            slug=form.slug.data,
+            description=form.description.data,
+            image_url=form.image_url.data,
+            is_active=form.is_active.data == 'True',
+            sort_order=form.sort_order.data
+        )
+        db.session.add(category)
+        db.session.commit()
+        flash('Категория добавлена!', 'success')
+        return redirect(url_for('admin_categories'))
+
+    return render_template('admin/category_form.html', form=form, title='Добавить категорию')
+
+@app.route('/admin/category/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_category(id):
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+
+    category = Category.query.get_or_404(id)
+    form = CategoryForm(obj=category)
+
+    if form.validate_on_submit():
+        category.name = form.name.data
+        category.slug = form.slug.data
+        category.description = form.description.data
+        category.image_url = form.image_url.data
+        category.is_active = form.is_active.data == 'True'
+        category.sort_order = form.sort_order.data
+        db.session.commit()
+        flash('Категория обновлена!', 'success')
+        return redirect(url_for('admin_categories'))
+
+    return render_template('admin/category_form.html', form=form, title='Редактировать категорию')
+
+@app.route('/admin/category/<int:id>/delete')
+@login_required
+def admin_delete_category(id):
+    if not current_user.is_admin:
+        flash(get_text('access_denied'), 'error')
+        return redirect(url_for('index'))
+
+    category = Category.query.get_or_404(id)
+    # Update products to remove category reference
+    Product.query.filter_by(category_id=category.id).update({'category_id': None})
+    db.session.delete(category)
+    db.session.commit()
+    flash('Категория удалена!', 'success')
+    return redirect(url_for('admin_categories'))
+
 # Admin user management
 @app.route('/admin/users')
 @login_required
@@ -1131,6 +1304,7 @@ if __name__ == '__main__':
             admin = User(
                 username='admin',
                 email='admin@flowershop.com',
+                phone='+995 555 123 456',
                 password_hash=generate_password_hash('admin123'),
                 is_admin=True
             )
@@ -1138,15 +1312,54 @@ if __name__ == '__main__':
             db.session.commit()
             print("Админ создан: admin/admin123")
 
+        # Создаем курьера по умолчанию если его нет
+        courier = User.query.filter_by(username='courier').first()
+        if not courier:
+            courier = User(
+                username='courier',
+                email='courier@flowershop.com',
+                phone='+995 555 654 321',
+                password_hash=generate_password_hash('courier123'),
+                is_courier=True
+            )
+            db.session.add(courier)
+            db.session.commit()
+            print("Курьер создан: courier/courier123")
+
+        # Создаем базовые настройки сайта
+        if not SiteSettings.query.first():
+            settings = SiteSettings()
+            db.session.add(settings)
+            db.session.commit()
+            print("Базовые настройки созданы")
+
+        # Создаем базовые категории если их нет
+        if Category.query.count() == 0:
+            categories = [
+                Category(name='Розы', slug='roses', description='Красивые розы разных сортов', sort_order=1),
+                Category(name='Тюльпаны', slug='tulips', description='Свежие тюльпаны', sort_order=2),
+                Category(name='Орхидеи', slug='orchids', description='Экзотические орхидеи', sort_order=3),
+                Category(name='Букеты', slug='bouquets', description='Готовые букеты', sort_order=4),
+                Category(name='Горшечные растения', slug='potted', description='Растения в горшках', sort_order=5)
+            ]
+            for category in categories:
+                db.session.add(category)
+            db.session.commit()
+            print("Базовые категории созданы")
+
         # Добавляем тестовые товары если их нет
         if Product.query.count() == 0:
+            roses_cat = Category.query.filter_by(slug='roses').first()
+            tulips_cat = Category.query.filter_by(slug='tulips').first()
+            orchids_cat = Category.query.filter_by(slug='orchids').first()
+            
             sample_products = [
-                Product(name='Красные розы', description='Букет из 25 красных роз', price=2500, stock=20, category='розы', image_url='https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400', is_visible=True, is_featured=True),
-                Product(name='Белые лилии', description='Элегантный букет белых лилий', price=1800, stock=15, category='лилии', image_url='https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400', is_visible=True, is_featured=True),
-                Product(name='Тюльпаны микс', description='Яркий букет разноцветных тюльпанов', price=1500, stock=30, category='тюльпаны', image_url='https://images.unsplash.com/photo-1520763185298-1b434c919102?w=400', is_visible=True),
-                Product(name='Пионы', description='Нежные розовые пионы', price=3000, stock=10, category='пионы', image_url='https://images.unsplash.com/photo-1588017341958-ce36aa0fb6d3?w=400', is_visible=True, is_featured=True),
-                Product(name='Орхидеи', description='Экзотические орхидеи', price=4500, stock=8, category='орхидеи', image_url='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', is_visible=True),
-                Product(name='Хризантемы', description='Осенние хризантемы', price=1200, stock=25, category='хризантемы', image_url='https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400', is_visible=True)
+                Product(name='Красные розы', description='Букет из 25 красных роз', price=50, stock=20, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400', is_visible=True, is_featured=True),
+                Product(name='Белые лилии', description='Элегантный букет белых лилий', price=35, stock=15, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400', is_visible=True, is_featured=True),
+                Product(name='Тюльпаны микс', description='Яркий букет разноцветных тюльпанов', price=30, stock=30, category='tulips', category_id=tulips_cat.id if tulips_cat else None, image_url='https://images.unsplash.com/photo-1520763185298-1b434c919102?w=400', is_visible=True),
+                Product(name='Пионы', description='Нежные розовые пионы', price=60, stock=10, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1588017341958-ce36aa0fb6d3?w=400', is_visible=True, is_featured=True),
+                Product(name='Орхидеи', description='Экзотические орхидеи', price=90, stock=8, category='orchids', category_id=orchids_cat.id if orchids_cat else None, image_url='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', is_visible=True),
+                Product(name='Хризантемы', description='Осенние хризантемы', price=25, stock=25, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400', is_visible=True)
             ]
             for product in sample_products:
                 db.session.add(product)

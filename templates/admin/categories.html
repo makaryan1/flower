@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+
+{% block title %}Управление категориями - Админ панель{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tags me-2"></i>Управление категориями</h1>
+    <a href="{{ url_for('admin_add_category') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Добавить категорию
+    </a>
+</div>
+
+<div class="row">
+    {% for category in categories %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            {% if category.image_url %}
+            <img src="{{ category.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ category.name }}">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <i class="fas fa-image fa-3x text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ category.name }}</h5>
+                <p class="card-text">{{ category.description or 'Без описания' }}</p>
+                <p class="card-text">
+                    <small class="text-muted">Slug: {{ category.slug }}</small><br>
+                    <small class="text-muted">Порядок: {{ category.sort_order }}</small>
+                </p>
+                <div class="mt-auto">
+                    <span class="badge {{ 'bg-success' if category.is_active else 'bg-secondary' }} mb-2">
+                        {{ 'Активная' if category.is_active else 'Неактивная' }}
+                    </span><br>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('admin_edit_category', id=category.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </a>
+                        <a href="{{ url_for('admin_delete_category', id=category.id) }}" 
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Вы уверены, что хотите удалить эту категорию?')">
+                            <i class="fas fa-trash"></i> Удалить
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not categories %}
+<div class="text-center py-5">
+    <i class="fas fa-tags fa-4x text-muted mb-3"></i>
+    <h4>Категории не найдены</h4>
+    <p class="text-muted">Создайте первую категорию для ваших товаров</p>
+    <a href="{{ url_for('admin_add_category') }}" class="btn btn-success">
+        <i class="fas fa-plus me-2"></i>Добавить категорию
+    </a>
+</div>
+{% endif %}
+{% endblock %}

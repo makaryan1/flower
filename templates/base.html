@@ -98,9 +98,14 @@
                                 <li><a class="dropdown-item" href="{{ url_for('my_orders') }}">
                                     <i class="fas fa-box me-2"></i>Мои заказы
                                 </a></li>
-                                {% if current_user.role == 'admin' %}
-                                <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                {% if current_user.is_admin %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin') }}">
                                     <i class="fas fa-cog me-2"></i>Админ панель
+                                </a></li>
+                                {% endif %}
+                                {% if current_user.is_courier %}
+                                <li><a class="dropdown-item" href="{{ url_for('courier_dashboard') }}">
+                                    <i class="fas fa-truck me-2"></i>Панель курьера
                                 </a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>

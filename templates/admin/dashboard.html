@@ -4,46 +4,66 @@
 {% block title %}Админ панель - Цветочный Магазин{% endblock %}
 
 {% block content %}
-<h1>Админ панель</h1>
+<h1><i class="fas fa-tachometer-alt me-2"></i>Админ панель</h1>
 
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
                 <i class="fas fa-box fa-3x text-success mb-3"></i>
                 <h4>{{ products|length }}</h4>
-                <p>{{ get_text('products') if get_text('products') != 'products' else 'Товаров' }}</p>
-                <a href="{{ url_for('admin_products') }}" class="btn btn-success">{{ get_text('manage') if get_text('manage') != 'manage' else 'Управление' }}</a>
+                <p>Товаров</p>
+                <a href="{{ url_for('admin_products') }}" class="btn btn-success btn-sm">Управление</a>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
                 <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
                 <h4>{{ orders|length }}</h4>
-                <p>{{ get_text('new_orders') if get_text('new_orders') != 'new_orders' else 'Новых заказов' }}</p>
-                <a href="{{ url_for('admin_orders') }}" class="btn btn-info">{{ get_text('view') if get_text('view') != 'view' else 'Просмотреть' }}</a>
+                <p>Новых заказов</p>
+                <a href="{{ url_for('admin_orders') }}" class="btn btn-info btn-sm">Просмотреть</a>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
                 <i class="fas fa-users fa-3x text-warning mb-3"></i>
-                <h4>{{ get_text('users') if get_text('users') != 'users' else 'Пользователи' }}</h4>
-                <p>{{ get_text('management') if get_text('management') != 'management' else 'Управление' }}</p>
-                <a href="{{ url_for('admin_users') }}" class="btn btn-warning">{{ get_text('manage') if get_text('manage') != 'manage' else 'Управление' }}</a>
+                <h4>Пользователи</h4>
+                <p>Управление</p>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-warning btn-sm">Управление</a>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <i class="fas fa-tags fa-3x text-purple mb-3"></i>
+                <h4>Категории</h4>
+                <p>Управление</p>
+                <a href="{{ url_for('admin_categories') }}" class="btn btn-purple btn-sm">Управление</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <i class="fas fa-cog fa-3x text-secondary mb-3"></i>
+                <h4>Настройки</h4>
+                <p>Сайт</p>
+                <a href="{{ url_for('admin_settings') }}" class="btn btn-secondary btn-sm">Настройки</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
                 <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
-                <h4>{{ get_text('statistics') }}</h4>
-                <p>{{ get_text('reports') if get_text('reports') != 'reports' else 'Отчеты' }}</p>
-                <a href="{{ url_for('admin_statistics') }}" class="btn btn-primary">{{ get_text('view') if get_text('view') != 'view' else 'Просмотреть' }}</a>
+                <h4>Статистика</h4>
+                <p>Отчеты</p>
+                <a href="{{ url_for('admin_statistics') }}" class="btn btn-primary btn-sm">Просмотреть</a>
             </div>
         </div>
     </div>
