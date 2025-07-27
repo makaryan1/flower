@@ -1,8 +1,31 @@
 
 // Обработка ошибок JavaScript
 window.addEventListener('unhandledrejection', function(event) {
+    // Игнорируем ошибки от расширений браузера (MetaMask и других)
+    if (event.reason && (
+        event.reason.message && event.reason.message.includes('MetaMask') ||
+        event.reason.stack && event.reason.stack.includes('chrome-extension://') ||
+        event.reason.name === 's' // специфическая ошибка MetaMask
+    )) {
+        console.log('Browser extension error ignored:', event.reason.message || event.reason.name);
+        event.preventDefault();
+        return;
+    }
+    
+    // Логируем только реальные ошибки приложения
     console.warn('Unhandled promise rejection:', event.reason);
     event.preventDefault();
+});
+
+// Обработка общих ошибок JavaScript
+window.addEventListener('error', function(event) {
+    // Игнорируем ошибки от расширений браузера
+    if (event.filename && event.filename.includes('chrome-extension://')) {
+        console.log('Browser extension script error ignored');
+        return;
+    }
+    
+    console.error('JavaScript error:', event.error);
 });
 
 // Добавляем обработчики для формы оформления заказа
