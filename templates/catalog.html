@@ -1,915 +1,140 @@
-
 {% extends "base.html" %}
 
-{% block title %}Каталог - FlowerShop{% endblock %}
+{% block title %}{{ get_text('catalog') if get_text('catalog') != 'catalog' else 'Каталог' }}{% endblock %}
 
 {% block content %}
 <div class="catalog-hero">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="catalog-title">
-                    {% if category %}
-                        {{ {'roses': 'Розы', 'tulips': 'Тюльпаны', 'orchids': 'Орхидеи', 'bouquets': 'Букеты', 'potted': 'Горшечные растения'}[category] or 'Каталог' }}
-                    {% else %}
-                        Каталог цветов
-                    {% endif %}
-                </h1>
-                <p class="catalog-subtitle">{{ products|length if products else 0 }} товар(ов) найдено</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="catalog-controls">
-                    <div class="view-toggle btn-group me-3" role="group">
-                        <button type="button" class="btn btn-outline-primary active" id="gridView">
-                            <i class="fas fa-th"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" id="listView">
-                            <i class="fas fa-list"></i>
-                        </button>
-                    </div>
-                    <select class="form-select d-inline-block" id="sortSelect" style="width: auto;">
-                        <option value="default">Сортировка</option>
-                        <option value="price_asc">Цена ↑</option>
-                        <option value="price_desc">Цена ↓</option>
-                        <option value="name_asc">По названию</option>
-                        <option value="popular">Популярные</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+        <h1 class="catalog-title">{{ get_text('catalog') if get_text('catalog') != 'catalog' else 'Каталог цветов' }}</h1>
+        <p class="catalog-subtitle">Выберите самые красивые цветы для особых моментов</p>
     </div>
 </div>
 
-<div class="container-fluid py-4">
-    <div class="row g-4">
-        <!-- Filters Sidebar -->
-        <div class="col-lg-3">
-            <div class="filters-sidebar sticky-top">
-                <!-- Categories Filter -->
-                <div class="filter-card modern-card">
-                    <div class="filter-header">
-                        <h6><i class="fas fa-layer-group me-2"></i>Категории</h6>
-                    </div>
-                    <div class="filter-body">
-                        <div class="category-filters">
-                            <a href="{{ url_for('catalog') }}" 
-                               class="category-filter {% if not category %}active{% endif %}">
-                                <span>Все категории</span>
-                                <span class="count">{{ Product.query.count() if Product else 0 }}</span>
-                            </a>
-                            {% set categories_list = [
-                                ('roses', 'Розы', 'fa-rose', 'text-danger'),
-                                ('tulips', 'Тюльпаны', 'fa-seedling', 'text-success'),
-                                ('orchids', 'Орхидеи', 'fa-leaf', 'text-info'),
-                                ('bouquets', 'Букеты', 'fa-gift', 'text-primary'),
-                                ('potted', 'Горшечные', 'fa-seedling', 'text-warning')
-                            ] %}
-                            {% for cat_id, cat_name, cat_icon, cat_color in categories_list %}
-                            <a href="{{ url_for('catalog', category=cat_id) }}" 
-                               class="category-filter {% if category == cat_id %}active{% endif %}">
-                                <span><i class="fas {{ cat_icon }} {{ cat_color }} me-2"></i>{{ cat_name }}</span>
-                                <span class="count">{{ Product.query.filter_by(category=cat_id).count() if Product else 0 }}</span>
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Price Filter -->
-                <div class="filter-card modern-card">
-                    <div class="filter-header">
-                        <h6><i class="fas fa-ruble-sign me-2"></i>Цена</h6>
-                    </div>
-                    <div class="filter-body">
-                        <div class="price-filter">
-                            <div class="row g-2 mb-3">
-                                <div class="col-6">
-                                    <input type="number" class="form-control form-control-sm" placeholder="От" id="priceFrom">
-                                </div>
-                                <div class="col-6">
-                                    <input type="number" class="form-control form-control-sm" placeholder="До" id="priceTo">
-                                </div>
-                            </div>
-                            <button class="btn btn-primary btn-sm w-100 mb-3" onclick="applyPriceFilter()">
-                                Применить
-                            </button>
-                            <div class="price-ranges">
-                                <label class="price-range-item">
-                                    <input type="checkbox" class="price-checkbox" data-min="0" data-max="1000">
-                                    <span class="checkmark"></span>
-                                    До ₽1000
-                                </label>
-                                <label class="price-range-item">
-                                    <input type="checkbox" class="price-checkbox" data-min="1000" data-max="3000">
-                                    <span class="checkmark"></span>
-                                    ₽1000 - ₽3000
-                                </label>
-                                <label class="price-range-item">
-                                    <input type="checkbox" class="price-checkbox" data-min="3000" data-max="5000">
-                                    <span class="checkmark"></span>
-                                    ₽3000 - ₽5000
-                                </label>
-                                <label class="price-range-item">
-                                    <input type="checkbox" class="price-checkbox" data-min="5000" data-max="999999">
-                                    <span class="checkmark"></span>
-                                    Свыше ₽5000
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Availability Filter -->
-                <div class="filter-card modern-card">
-                    <div class="filter-header">
-                        <h6><i class="fas fa-check-circle me-2"></i>Наличие</h6>
-                    </div>
-                    <div class="filter-body">
-                        <label class="filter-checkbox">
-                            <input type="checkbox" id="inStock" checked>
-                            <span class="checkmark"></span>
-                            В наличии
-                        </label>
-                        <label class="filter-checkbox">
-                            <input type="checkbox" id="outOfStock">
-                            <span class="checkmark"></span>
-                            Нет в наличии
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Reset Filters -->
-                <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
-                    <i class="fas fa-undo me-2"></i>Сбросить фильтры
-                </button>
+<div class="catalog-container">
+    <div class="container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">Все товары</button>
+                <button class="filter-btn" data-category="roses">Розы</button>
+                <button class="filter-btn" data-category="tulips">Тюльпаны</button>
+                <button class="filter-btn" data-category="bouquets">Букеты</button>
+                <button class="filter-btn" data-category="seasonal">Сезонные</button>
             </div>
         </div>
 
         <!-- Products Grid -->
-        <div class="col-lg-9">
-            {% if products %}
-                <div class="products-container" id="productsContainer">
-                    <div class="row g-4" id="productsList">
-                        {% for product in products %}
-                        <div class="col-xl-4 col-lg-6 col-md-6 product-item" 
-                             data-price="{{ product.price }}"
-                             data-name="{{ product.name }}"
-                             data-category="{{ product.category }}"
-                             data-stock="{{ product.stock }}">
-                            <div class="product-card modern-card h-100">
-                                <div class="product-image-container">
-                                    <img src="{{ product.image_url or 'https://via.placeholder.com/400x300/e91e63/ffffff?text=' + product.name[:1] }}" 
-                                         class="product-image" alt="{{ product.name }}">
-                                    
-                                    <!-- Product Badges -->
-                                    <div class="product-badges">
-                                        {% if product.is_featured %}
-                                        <span class="product-badge featured">ХИТ</span>
-                                        {% endif %}
-                                        {% if product.stock <= 5 and product.stock > 0 %}
-                                        <span class="product-badge limited">Мало</span>
-                                        {% elif product.stock <= 0 %}
-                                        <span class="product-badge out-of-stock">Нет в наличии</span>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- Quick Actions -->
-                                    <div class="product-actions">
-                                        <button class="action-btn" title="В избранное">
-                                            <i class="fas fa-heart"></i>
-                                        </button>
-                                        <button class="action-btn" onclick="quickView({{ product.id }})" title="Быстрый просмотр">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="action-btn" onclick="compareProduct({{ product.id }})" title="Сравнить">
-                                            <i class="fas fa-balance-scale"></i>
-                                        </button>
-                                    </div>
-
-                                    <!-- Sale Overlay -->
-                                    {% if product.stock <= 0 %}
-                                    <div class="product-overlay out-of-stock-overlay">
-                                        <span>Нет в наличии</span>
-                                    </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="product-info">
-                                    <div class="product-category">
-                                        {{ {'roses': 'Розы', 'tulips': 'Тюльпаны', 'orchids': 'Орхидеи', 'bouquets': 'Букеты', 'potted': 'Горшечные'}[product.category] or product.category }}
-                                    </div>
-                                    <h5 class="product-title">{{ product.name }}</h5>
-                                    
-                                    <!-- Rating -->
-                                    <div class="product-rating">
-                                        <div class="stars">
-                                            {% for i in range(5) %}
-                                            <i class="fas fa-star{% if i >= 4 %} text-muted{% endif %}"></i>
-                                            {% endfor %}
-                                        </div>
-                                        <span class="rating-count">({{ range(15, 200) | random }})</span>
-                                    </div>
-
-                                    <!-- Price -->
-                                    <div class="product-price-section">
-                                        <div class="current-price">₽{{ "%.0f"|format(product.price) }}</div>
-                                        <div class="original-price">₽{{ "%.0f"|format(product.price * 1.3) }}</div>
-                                        <div class="discount-badge">-23%</div>
-                                    </div>
-
-                                    <!-- Stock Info -->
-                                    {% if product.stock > 0 and product.stock <= 10 %}
-                                    <div class="stock-info">
-                                        <i class="fas fa-exclamation-triangle text-warning"></i>
-                                        Осталось: {{ product.stock }} шт.
-                                    </div>
-                                    {% endif %}
-
-                                    <!-- Actions -->
-                                    <div class="product-bottom">
-                                        <a href="{{ url_for('product_detail', id=product.id) }}" class="btn btn-outline-primary btn-sm flex-fill me-2">
-                                            <i class="fas fa-info-circle me-1"></i>Подробнее
-                                        </a>
-                                        {% if product.stock > 0 %}
-                                            <button onclick="addToCart({{ product.id }})" class="btn btn-primary btn-sm flex-fill">
-                                                <i class="fas fa-cart-plus me-1"></i>В корзину
-                                            </button>
-                                        {% else %}
-                                            <button class="btn btn-secondary btn-sm flex-fill" disabled>
-                                                <i class="fas fa-ban me-1"></i>Нет в наличии
-                                            </button>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card" data-category="{{ product.category }}">
+                <div class="product-image-wrapper">
+                    {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image-placeholder">
+                            <i class="flower-icon">🌸</i>
                         </div>
-                        {% endfor %}
-                    </div>
+                    {% endif %}
 
-                    <!-- Load More Button -->
-                    <div class="text-center mt-5">
-                        <button class="btn btn-outline-primary btn-lg" id="loadMoreBtn">
-                            <i class="fas fa-plus me-2"></i>Показать еще
-                        </button>
+                    {% if product.stock <= 5 and product.stock > 0 %}
+                        <span class="stock-badge low-stock">Осталось мало</span>
+                    {% elif product.stock == 0 %}
+                        <span class="stock-badge out-of-stock">Нет в наличии</span>
+                    {% endif %}
+
+                    <div class="product-overlay">
+                        <a href="{{ url_for('product_detail', id=product.id) }}" class="view-btn">
+                            <i class="icon">👁</i> Подробнее
+                        </a>
                     </div>
                 </div>
-            {% else %}
-                <div class="empty-catalog">
-                    <div class="empty-icon">
-                        <i class="fas fa-search"></i>
+
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description[:80] }}{% if product.description|length > 80 %}...{% endif %}</p>
+
+                    <div class="product-bottom">
+                        <div class="price-section">
+                            <span class="product-price">{{ product.price }} ₾</span>
+                            {% if product.category == 'seasonal' %}
+                                <span class="original-price">{{ (product.price * 1.2)|round|int }} ₾</span>
+                            {% endif %}
+                        </div>
+
+                        {% if product.stock > 0 %}
+                            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" class="add-to-cart-form">
+                                <button type="submit" class="add-to-cart-btn">
+                                    <i class="cart-icon">🛒</i>
+                                    В корзину
+                                </button>
+                            </form>
+                        {% else %}
+                            <button class="add-to-cart-btn disabled" disabled>
+                                Нет в наличии
+                            </button>
+                        {% endif %}
                     </div>
-                    <h3>Товары не найдены</h3>
-                    <p>Попробуйте изменить параметры поиска или выберите другую категорию</p>
-                    <a href="{{ url_for('catalog') }}" class="btn btn-primary">
-                        <i class="fas fa-arrow-left me-2"></i>Вернуться к каталогу
-                    </a>
                 </div>
-            {% endif %}
+            </div>
+            {% endfor %}
         </div>
+
+        {% if not products %}
+        <div class="empty-catalog">
+            <div class="empty-icon">🌺</div>
+            <h3>Товары временно недоступны</h3>
+            <p>Мы работаем над пополнением ассортимента</p>
+        </div>
+        {% endif %}
     </div>
 </div>
-
-<!-- Quick View Modal -->
-<div class="modal fade" id="quickViewModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Быстрый просмотр</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="quickViewContent">
-                    <!-- Content will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-.catalog-hero {
-    background: linear-gradient(135deg, rgba(233, 30, 99, 0.1) 0%, rgba(255, 64, 129, 0.1) 100%);
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-}
-
-.catalog-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-.catalog-subtitle {
-    color: #6c757d;
-    font-size: 1.1rem;
-}
-
-.catalog-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.filters-sidebar {
-    top: 100px;
-}
-
-.filter-card {
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-}
-
-.filter-header {
-    background: var(--gradient-primary);
-    color: white;
-    padding: 1rem;
-    margin: -1rem -1rem 1rem -1rem;
-}
-
-.filter-header h6 {
-    margin: 0;
-    font-weight: 600;
-}
-
-.category-filters {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.category-filter {
-    display: flex;
-    justify-content: between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    border-radius: var(--border-radius);
-    text-decoration: none;
-    color: var(--dark-color);
-    transition: var(--transition);
-    border: 1px solid transparent;
-}
-
-.category-filter:hover,
-.category-filter.active {
-    background: var(--gradient-primary);
-    color: white;
-    transform: translateX(5px);
-}
-
-.category-filter .count {
-    background: rgba(0,0,0,0.1);
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    margin-left: auto;
-}
-
-.price-ranges {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.price-range-item,
-.filter-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-}
-
-.price-range-item:hover,
-.filter-checkbox:hover {
-    background: rgba(233, 30, 99, 0.1);
-}
-
-.price-range-item input,
-.filter-checkbox input {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary-color);
-}
-
-.products-container {
-    min-height: 600px;
-}
-
-.product-card {
-    transition: var(--transition);
-    overflow: hidden;
-    position: relative;
-}
-
-.product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-heavy);
-}
-
-.product-image-container {
-    position: relative;
-    height: 300px;
-    overflow: hidden;
-}
-
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: var(--transition);
-}
-
-.product-card:hover .product-image {
-    transform: scale(1.1);
-}
-
-.product-badges {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    z-index: 2;
-}
-
-.product-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 15px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.product-badge.featured {
-    background: linear-gradient(45deg, #ff5722, #ff9800);
-    color: white;
-}
-
-.product-badge.limited {
-    background: linear-gradient(45deg, #ff9800, #ffc107);
-    color: white;
-}
-
-.product-badge.out-of-stock {
-    background: #6c757d;
-    color: white;
-}
-
-.product-actions {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    opacity: 0;
-    transition: var(--transition);
-    z-index: 2;
-}
-
-.product-card:hover .product-actions {
-    opacity: 1;
-}
-
-.action-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    backdrop-filter: blur(10px);
-}
-
-.action-btn:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: scale(1.1);
-}
-
-.product-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    z-index: 1;
-}
-
-.out-of-stock-overlay {
-    background: rgba(0,0,0,0.7);
-    color: white;
-}
-
-.product-info {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.product-category {
-    color: var(--primary-color);
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.product-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-    line-height: 1.3;
-}
-
-.product-rating {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.stars {
-    color: #ffc107;
-    font-size: 0.9rem;
-}
-
-.rating-count {
-    color: #6c757d;
-    font-size: 0.85rem;
-}
-
-.product-price-section {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.current-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.original-price {
-    font-size: 1rem;
-    color: #6c757d;
-    text-decoration: line-through;
-}
-
-.discount-badge {
-    background: #28a745;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.stock-info {
-    color: #ffc107;
-    font-size: 0.9rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.product-bottom {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: auto;
-}
-
-.empty-catalog {
-    text-align: center;
-    padding: 4rem 2rem;
-}
-
-.empty-icon {
-    font-size: 5rem;
-    color: #dee2e6;
-    margin-bottom: 2rem;
-}
-
-.empty-catalog h3 {
-    color: var(--dark-color);
-    margin-bottom: 1rem;
-}
-
-.empty-catalog p {
-    color: #6c757d;
-    margin-bottom: 2rem;
-}
-
-/* List View Styles */
-.list-view .product-item {
-    flex: 0 0 100%;
-    max-width: 100%;
-}
-
-.list-view .product-card {
-    display: flex;
-    flex-direction: row;
-    height: 200px;
-}
-
-.list-view .product-image-container {
-    width: 300px;
-    flex-shrink: 0;
-}
-
-.list-view .product-info {
-    flex: 1;
-    padding: 1.5rem;
-}
-
-.list-view .product-bottom {
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .catalog-hero {
-        padding: 1rem 0;
-    }
-    
-    .catalog-title {
-        font-size: 2rem;
-    }
-    
-    .catalog-controls {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: stretch;
-    }
-    
-    .filters-sidebar {
-        position: static;
-        margin-bottom: 2rem;
-    }
-    
-    .filter-card {
-        margin-bottom: 1rem;
-    }
-    
-    .product-image-container {
-        height: 250px;
-    }
-    
-    .list-view .product-card {
-        flex-direction: column;
-        height: auto;
-    }
-    
-    .list-view .product-image-container {
-        width: 100%;
-        height: 250px;
-    }
-}
-</style>
 
 <script>
-// Add to cart function
-function addToCart(productId) {
-    const btn = event.target.closest('button');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Добавляем...';
-    btn.disabled = true;
-    
-    fetch(`/add_to_cart/${productId}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Товар добавлен в корзину!', 'success');
-                updateCartCounter();
-                btn.innerHTML = '<i class="fas fa-check me-1"></i>Добавлено';
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
-            } else {
-                throw new Error(data.message || 'Ошибка при добавлении');
-            }
-        })
-        .catch(error => {
-            showNotification('Ошибка при добавлении товара', 'error');
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        });
-}
-
-// Show notification
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
-    notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-// Update cart counter
-function updateCartCounter() {
-    fetch('/cart/count')
-        .then(response => response.json())
-        .then(data => {
-            document.querySelector('.cart-badge').textContent = data.count;
-        });
-}
-
-// View toggle
-document.getElementById('gridView').addEventListener('click', function() {
-    document.getElementById('listView').classList.remove('active');
-    this.classList.add('active');
-    document.getElementById('productsContainer').classList.remove('list-view');
-});
-
-document.getElementById('listView').addEventListener('click', function() {
-    document.getElementById('gridView').classList.remove('active');
-    this.classList.add('active');
-    document.getElementById('productsContainer').classList.add('list-view');
-});
-
-// Sorting
-document.getElementById('sortSelect').addEventListener('change', function() {
-    const sortValue = this.value;
-    const productsList = document.getElementById('productsList');
-    const products = Array.from(productsList.children);
-
-    products.sort((a, b) => {
-        switch(sortValue) {
-            case 'price_asc':
-                return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
-            case 'price_desc':
-                return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-            case 'name_asc':
-                return a.dataset.name.localeCompare(b.dataset.name);
-            default:
-                return 0;
-        }
-    });
-
-    products.forEach(product => productsList.appendChild(product));
-});
-
-// Price filter
-function applyPriceFilter() {
-    const priceFrom = parseInt(document.getElementById('priceFrom').value) || 0;
-    const priceTo = parseInt(document.getElementById('priceTo').value) || 999999;
-    filterProducts();
-}
-
-// Price range checkboxes
-document.querySelectorAll('.price-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', filterProducts);
-});
-
-// Stock filter
-document.getElementById('inStock').addEventListener('change', filterProducts);
-document.getElementById('outOfStock').addEventListener('change', filterProducts);
-
-function filterProducts() {
-    const products = document.querySelectorAll('.product-item');
-    const priceFrom = parseInt(document.getElementById('priceFrom').value) || 0;
-    const priceTo = parseInt(document.getElementById('priceTo').value) || 999999;
-    const inStock = document.getElementById('inStock').checked;
-    const outOfStock = document.getElementById('outOfStock').checked;
-    
-    // Get checked price ranges
-    const checkedRanges = Array.from(document.querySelectorAll('.price-checkbox:checked'));
-    
-    products.forEach(product => {
-        const price = parseFloat(product.dataset.price);
-        const stock = parseInt(product.dataset.stock);
-        
-        let showProduct = true;
-        
-        // Price range filter
-        if (checkedRanges.length > 0) {
-            showProduct = checkedRanges.some(range => {
-                const min = parseInt(range.dataset.min);
-                const max = parseInt(range.dataset.max);
-                return price >= min && price <= max;
-            });
-        } else {
-            // Manual price filter
-            showProduct = price >= priceFrom && price <= priceTo;
-        }
-        
-        // Stock filter
-        if (showProduct) {
-            if (!inStock && stock > 0) showProduct = false;
-            if (!outOfStock && stock <= 0) showProduct = false;
-        }
-        
-        product.style.display = showProduct ? 'block' : 'none';
-    });
-}
-
-// Reset filters
-function resetFilters() {
-    document.getElementById('priceFrom').value = '';
-    document.getElementById('priceTo').value = '';
-    document.getElementById('sortSelect').value = 'default';
-    document.querySelectorAll('.price-checkbox').forEach(cb => cb.checked = false);
-    document.getElementById('inStock').checked = true;
-    document.getElementById('outOfStock').checked = false;
-    
-    document.querySelectorAll('.product-item').forEach(product => {
-        product.style.display = 'block';
-    });
-}
-
-// Quick view
-function quickView(productId) {
-    // This would fetch product details and show in modal
-    document.getElementById('quickViewContent').innerHTML = `
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Загрузка...</span>
-            </div>
-        </div>
-    `;
-    
-    const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
-    modal.show();
-    
-    // Simulate loading
-    setTimeout(() => {
-        document.getElementById('quickViewContent').innerHTML = `
-            <div class="row">
-                <div class="col-md-6">
-                    <img src="https://via.placeholder.com/400x300" class="img-fluid rounded">
-                </div>
-                <div class="col-md-6">
-                    <h4>Название товара</h4>
-                    <div class="stars text-warning mb-2">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="far fa-star"></i>
-                    </div>
-                    <div class="price mb-3">
-                        <span class="h4 text-danger">₽2500</span>
-                        <span class="text-muted text-decoration-line-through ms-2">₽3200</span>
-                    </div>
-                    <p>Краткое описание товара...</p>
-                    <button class="btn btn-primary btn-lg w-100">
-                        <i class="fas fa-cart-plus me-2"></i>Добавить в корзину
-                    </button>
-                </div>
-            </div>
-        `;
-    }, 1000);
-}
-
-function compareProduct(productId) {
-    showNotification('Товар добавлен к сравнению', 'success');
-}
-
-// Load more functionality
-document.getElementById('loadMoreBtn')?.addEventListener('click', function() {
-    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Загрузка...';
-    
-    setTimeout(() => {
-        this.innerHTML = '<i class="fas fa-plus me-2"></i>Показать еще';
-        showNotification('Больше товаров не найдено', 'info');
-    }, 1500);
-});
-
-// Initialize filters on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Set initial filter states
-    document.getElementById('inStock').checked = true;
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const productCards = document.querySelectorAll('.product-card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            const category = this.getAttribute('data-category');
+
+            productCards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 10);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+    });
+
+    // Add to cart animation
+    const addToCartForms = document.querySelectorAll('.add-to-cart-form');
+    addToCartForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('.add-to-cart-btn');
+            button.classList.add('adding');
+            button.innerHTML = '<i class="cart-icon">✓</i> Добавлено!';
+
+            setTimeout(() => {
+                button.classList.remove('adding');
+                button.innerHTML = '<i class="cart-icon">🛒</i> В корзину';
+            }, 2000);
+        });
+    });
 });
 </script>
 {% endblock %}
