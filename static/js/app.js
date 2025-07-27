@@ -1,100 +1,296 @@
 
-// Обработка ошибок JavaScript
-window.addEventListener('unhandledrejection', function(event) {
-    // Игнорируем ошибки от расширений браузера (MetaMask и других)
-    if (event.reason && (
-        event.reason.message && event.reason.message.includes('MetaMask') ||
-        event.reason.stack && event.reason.stack.includes('chrome-extension://') ||
-        event.reason.name === 's' // специфическая ошибка MetaMask
-    )) {
-        console.log('Browser extension error ignored:', event.reason.message || event.reason.name);
-        event.preventDefault();
-        return;
-    }
-    
-    // Логируем только реальные ошибки приложения
-    console.warn('Unhandled promise rejection:', event.reason);
-    event.preventDefault();
-});
+// FlowerShop Main JavaScript
 
-// Обработка общих ошибок JavaScript
-window.addEventListener('error', function(event) {
-    // Игнорируем ошибки от расширений браузера
-    if (event.filename && event.filename.includes('chrome-extension://')) {
-        console.log('Browser extension script error ignored');
-        return;
-    }
-    
-    console.error('JavaScript error:', event.error);
-});
-
-// Добавляем обработчики для формы оформления заказа
 document.addEventListener('DOMContentLoaded', function() {
-    // Обработка способа оплаты
-    const paymentMethodSelect = document.querySelector('select[name="payment"]');
-    const bankSelect = document.querySelector('select[name="bank"]');
-    const bankGroup = document.querySelector('.bank-group');
-
-    if (paymentMethodSelect && bankSelect && bankGroup) {
-        function toggleBankSelect() {
-            if (paymentMethodSelect.value === 'online') {
-                bankGroup.style.display = 'block';
-                bankSelect.required = true;
-            } else {
-                bankGroup.style.display = 'none';
-                bankSelect.required = false;
-                bankSelect.value = '';
-            }
-        }
-
-        paymentMethodSelect.addEventListener('change', toggleBankSelect);
-        toggleBankSelect(); // Вызываем при загрузке страницы
-    }
-
-    // Обработка способа доставки
-    const deliveryMethodSelect = document.querySelector('select[name="delivery"]');
-    const districtGroup = document.querySelector('.district-group');
-
-    if (deliveryMethodSelect && districtGroup) {
-        function toggleDistrictSelect() {
-            if (deliveryMethodSelect.value === 'pickup') {
-                districtGroup.style.display = 'none';
-            } else {
-                districtGroup.style.display = 'block';
-            }
-        }
-
-        deliveryMethodSelect.addEventListener('change', toggleDistrictSelect);
-        toggleDistrictSelect();
-    }
-
-    // Обработка изменения количества в корзине
-    const quantityInputs = document.querySelectorAll('input[name="quantity"]');
-    quantityInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            if (this.value < 1) {
-                this.value = 1;
-            }
-        });
-    });
-
-    // Подтверждение очистки корзины
-    const clearCartButton = document.querySelector('.clear-cart-btn');
-    if (clearCartButton) {
-        clearCartButton.addEventListener('click', function(e) {
-            if (!confirm('Вы уверены, что хотите очистить корзину?')) {
-                e.preventDefault();
-            }
-        });
-    }
-
-    // Подтверждение удаления товара
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            if (!confirm('Вы уверены, что хотите удалить этот элемент?')) {
-                e.preventDefault();
-            }
-        });
-    });
+    // Initialize all components
+    initNavbar();
+    initCart();
+    initForms();
+    initModals();
+    initAnimations();
 });
+
+// Navbar functionality
+function initNavbar() {
+    const navbar = document.querySelector('.modern-nav');
+    if (!navbar) return;
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Mobile menu handling
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    if (navbarToggler) {
+        navbarToggler.addEventListener('click', function() {
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            if (navbarCollapse) {
+                navbarCollapse.classList.toggle('show');
+            }
+        });
+    }
+}
+
+// Cart functionality
+function initCart() {
+    // Update cart count
+    updateCartCount();
+    
+    // Cart quantity controls
+    const quantityControls = document.querySelectorAll('.quantity-control');
+    quantityControls.forEach(control => {
+        control.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input[type="number"]');
+            const action = this.dataset.action;
+            let currentValue = parseInt(input.value) || 0;
+            
+            if (action === 'increase') {
+                input.value = currentValue + 1;
+            } else if (action === 'decrease' && currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+            
+            // Auto-submit form after change
+            const form = input.closest('form');
+            if (form) {
+                form.submit();
+            }
+        });
+    });
+}
+
+// Update cart count in navbar
+function updateCartCount() {
+    const cartItems = JSON.parse(sessionStorage.getItem('cart_items') || '{}');
+    const cartCount = Object.values(cartItems).reduce((total, qty) => total + qty, 0);
+    const cartBadge = document.querySelector('.cart-count');
+    if (cartBadge) {
+        cartBadge.textContent = cartCount;
+        cartBadge.style.display = cartCount > 0 ? 'inline' : 'none';
+    }
+}
+
+// Form enhancements
+function initForms() {
+    // Add form validation feedback
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                showNotification('Пожалуйста, заполните все обязательные поля', 'error');
+            }
+        });
+    });
+
+    // Auto-format phone numbers
+    const phoneInputs = document.querySelectorAll('input[type="tel"], input[name*="phone"]');
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value.startsWith('995')) {
+                value = '+' + value;
+            }
+            this.value = value;
+        });
+    });
+
+    // Checkout form enhancements
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+        const districtSelect = checkoutForm.querySelector('[name="district"]');
+        const paymentMethodSelect = checkoutForm.querySelector('[name="payment"]');
+        const bankSelect = checkoutForm.querySelector('[name="bank"]');
+
+        if (districtSelect) {
+            districtSelect.addEventListener('change', updateDeliveryPrice);
+        }
+
+        if (paymentMethodSelect && bankSelect) {
+            paymentMethodSelect.addEventListener('change', function() {
+                const bankGroup = bankSelect.closest('.form-group, .mb-3');
+                if (this.value === 'online') {
+                    bankGroup.style.display = 'block';
+                    bankSelect.setAttribute('required', 'required');
+                } else {
+                    bankGroup.style.display = 'none';
+                    bankSelect.removeAttribute('required');
+                }
+            });
+        }
+    }
+}
+
+// Update delivery price based on district
+function updateDeliveryPrice() {
+    const districtSelect = document.querySelector('[name="district"]');
+    const priceElement = document.getElementById('delivery-price');
+    const finalPriceElement = document.getElementById('final-price');
+    
+    if (!districtSelect || !priceElement) return;
+    
+    const selectedOption = districtSelect.options[districtSelect.selectedIndex];
+    const price = selectedOption.text.includes('5₾') ? 5 : 10;
+    
+    priceElement.textContent = `₾${price}`;
+    
+    // Update final price
+    if (finalPriceElement) {
+        const basePrice = parseFloat(finalPriceElement.dataset.basePrice || 0);
+        finalPriceElement.textContent = `₾${basePrice + price}`;
+    }
+}
+
+// Modal functionality
+function initModals() {
+    // Product quick view modals
+    const quickViewButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+    quickViewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            if (productId) {
+                loadProductModal(productId);
+            }
+        });
+    });
+}
+
+// Load product data into modal
+function loadProductModal(productId) {
+    fetch(`/api/product/${productId}`)
+        .then(response => response.json())
+        .then(data => {
+            const modal = document.getElementById('productModal');
+            if (modal) {
+                modal.querySelector('.product-name').textContent = data.name;
+                modal.querySelector('.product-description').textContent = data.description;
+                modal.querySelector('.product-price').textContent = `₾${data.price}`;
+                const img = modal.querySelector('.product-image');
+                if (img && data.image_url) {
+                    img.src = data.image_url;
+                    img.alt = data.name;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading product:', error);
+            showNotification('Ошибка загрузки товара', 'error');
+        });
+}
+
+// Animations and effects
+function initAnimations() {
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Fade in animation for cards
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.card, .product-card').forEach(card => {
+        observer.observe(card);
+    });
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show notification`;
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Add to page
+    const container = document.querySelector('.container') || document.body;
+    container.insertBefore(notification, container.firstChild);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Search functionality
+function initSearch() {
+    const searchInput = document.querySelector('.search-input');
+    const searchButton = document.querySelector('.search-button');
+    
+    if (searchInput && searchButton) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch(this.value);
+            }
+        });
+        
+        searchButton.addEventListener('click', function() {
+            performSearch(searchInput.value);
+        });
+    }
+}
+
+function performSearch(query) {
+    if (query.trim()) {
+        window.location.href = `/catalog?search=${encodeURIComponent(query)}`;
+    }
+}
+
+// Language switcher
+function switchLanguage(lang) {
+    fetch(`/set_language/${lang}`)
+        .then(() => {
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error switching language:', error);
+        });
+}
+
+// Export functions for global use
+window.FlowerShop = {
+    showNotification,
+    updateCartCount,
+    switchLanguage,
+    performSearch
+};

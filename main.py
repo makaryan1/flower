@@ -492,13 +492,8 @@ class ProductForm(FlaskForm):
     description = TextAreaField('Описание')
     price = DecimalField('Цена', validators=[DataRequired(), NumberRange(min=0)])
     stock = IntegerField('Количество', validators=[DataRequired(), NumberRange(min=0)])
-    category = SelectField('Категория', choices=[
-        ('roses', 'Розы'),
-        ('tulips', 'Тюльпаны'),
-        ('orchids', 'Орхидеи'),
-        ('bouquets', 'Букеты'),
-        ('potted', 'Горшечные растения')
-    ])
+    category = SelectField('Категория', choices=[])
+    category_id = SelectField('Категория ID', choices=[], coerce=int)
     image_url = StringField('URL изображения')
     is_visible = SelectField('Видимость', choices=[
         ('True', 'Видимый'),
@@ -509,6 +504,25 @@ class ProductForm(FlaskForm):
         ('False', 'Нет')
     ], default='False')
     submit = SubmitField('Сохранить')
+    
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        # Dynamic category choices
+        categories = Category.query.filter_by(is_active=True).all()
+        self.category.choices = [(cat.slug, cat.name) for cat in categories]
+        self.category_id.choices = [(cat.id, cat.name) for cat in categories]
+        
+        # Fallback choices if no categories exist
+        if not self.category.choices:
+            self.category.choices = [
+                ('roses', 'Розы'),
+                ('tulips', 'Тюльпаны'),
+                ('orchids', 'Орхидеи'),
+                ('bouquets', 'Букеты'),
+                ('potted', 'Горшечные растения')
+            ]
+        if not self.category_id.choices:
+            self.category_id.choices = [(0, 'Без категории')]
 
 class CheckoutForm(FlaskForm):
     district = SelectField('Район', choices=[
@@ -907,32 +921,44 @@ def admin_add_product():
 
     form = ProductForm()
     if form.validate_on_submit():
+        # Get category by ID if provided, otherwise use slug
+        category_obj = None
+        if form.category_id.data:
+            category_obj = Category.query.get(form.category_id.data)
+        
         product = Product(
             name=form.name.data,
             description=form.description.data,
             price=float(form.price.data),
             stock=form.stock.data,
             category=form.category.data,
+            category_id=form.category_id.data if form.category_id.data else None,
             image_url=form.image_url.data,
             is_visible=form.is_visible.data == 'True',
             is_featured=form.is_featured.data == 'True'
         )
         db.session.add(product)
         db.session.commit()
-        flash(get_text('product_added') if get_text('product_added') != 'product_added' else 'Товар добавлен!', 'success')
+        flash('Товар добавлен!', 'success')
         return redirect(url_for('admin_products'))
 
-    return render_template('admin/product_form.html', form=form, title=get_text('add_product') if get_text('add_product') != 'add_product' else 'Добавить товар')
+    return render_template('admin/product_form.html', form=form, title='Добавить товар')
 
 @app.route('/admin/product/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 def admin_edit_product(id):
     if not current_user.is_admin:
-        flash(get_text('access_denied') if get_text('access_denied') != 'access_denied' else 'Доступ запрещен!', 'error')
+        flash('Доступ запрещен!', 'error')
         return redirect(url_for('index'))
 
-    product = db.get_or_404(Product, id)
+    product = Product.query.get_or_404(id)
     form = ProductForm(obj=product)
+    
+    # Pre-populate form fields
+    if request.method == 'GET':
+        form.category_id.data = product.category_id
+        form.is_visible.data = str(product.is_visible)
+        form.is_featured.data = str(product.is_featured)
 
     if form.validate_on_submit():
         product.name = form.name.data
@@ -940,14 +966,15 @@ def admin_edit_product(id):
         product.price = float(form.price.data)
         product.stock = form.stock.data
         product.category = form.category.data
+        product.category_id = form.category_id.data if form.category_id.data else None
         product.image_url = form.image_url.data
         product.is_visible = form.is_visible.data == 'True'
         product.is_featured = form.is_featured.data == 'True'
         db.session.commit()
-        flash(get_text('product_updated') if get_text('product_updated') != 'product_updated' else 'Товар обновлен!', 'success')
+        flash('Товар обновлен!', 'success')
         return redirect(url_for('admin_products'))
 
-    return render_template('admin/product_form.html', form=form, title=get_text('edit_product') if get_text('edit_product') != 'edit_product' else 'Редактировать товар')
+    return render_template('admin/product_form.html', form=form, title='Редактировать товар')
 
 @app.route('/admin/product/<int:id>/delete')
 @login_required
@@ -1364,7 +1391,7 @@ if __name__ == '__main__':
 
         # Создаем базовые категории если их нет
             if Category.query.count() == 0:
-            categories = [
+                categories = [
                     Category(name='Розы', slug='roses', description='Красивые розы разных сортов', sort_order=1),
                     Category(name='Тюльпаны', slug='tulips', description='Свежие тюльпаны', sort_order=2),
                     Category(name='Орхидеи', slug='orchids', description='Экзотические орхидеи', sort_order=3),
@@ -1376,9 +1403,9 @@ if __name__ == '__main__':
                 db.session.commit()
                 print("Базовые категории созданы")
 
-        # Добавляем тестовые товары если их нет
+            # Добавляем тестовые товары если их нет
             if Product.query.count() == 0:
-            roses_cat = Category.query.filter_by(slug='roses').first()
+                roses_cat = Category.query.filter_by(slug='roses').first()
                 tulips_cat = Category.query.filter_by(slug='tulips').first()
                 orchids_cat = Category.query.filter_by(slug='orchids').first()
                 
