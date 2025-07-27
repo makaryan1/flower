@@ -1357,43 +1357,43 @@ if __name__ == '__main__':
 
             # Создаем базовые настройки сайта
             if not SiteSettings.query.first():
-            settings = SiteSettings()
-            db.session.add(settings)
-            db.session.commit()
-            print("Базовые настройки созданы")
+                settings = SiteSettings()
+                db.session.add(settings)
+                db.session.commit()
+                print("Базовые настройки созданы")
 
         # Создаем базовые категории если их нет
-        if Category.query.count() == 0:
+            if Category.query.count() == 0:
             categories = [
-                Category(name='Розы', slug='roses', description='Красивые розы разных сортов', sort_order=1),
-                Category(name='Тюльпаны', slug='tulips', description='Свежие тюльпаны', sort_order=2),
-                Category(name='Орхидеи', slug='orchids', description='Экзотические орхидеи', sort_order=3),
-                Category(name='Букеты', slug='bouquets', description='Готовые букеты', sort_order=4),
-                Category(name='Горшечные растения', slug='potted', description='Растения в горшках', sort_order=5)
-            ]
-            for category in categories:
-                db.session.add(category)
-            db.session.commit()
-            print("Базовые категории созданы")
+                    Category(name='Розы', slug='roses', description='Красивые розы разных сортов', sort_order=1),
+                    Category(name='Тюльпаны', slug='tulips', description='Свежие тюльпаны', sort_order=2),
+                    Category(name='Орхидеи', slug='orchids', description='Экзотические орхидеи', sort_order=3),
+                    Category(name='Букеты', slug='bouquets', description='Готовые букеты', sort_order=4),
+                    Category(name='Горшечные растения', slug='potted', description='Растения в горшках', sort_order=5)
+                ]
+                for category in categories:
+                    db.session.add(category)
+                db.session.commit()
+                print("Базовые категории созданы")
 
         # Добавляем тестовые товары если их нет
-        if Product.query.count() == 0:
+            if Product.query.count() == 0:
             roses_cat = Category.query.filter_by(slug='roses').first()
-            tulips_cat = Category.query.filter_by(slug='tulips').first()
-            orchids_cat = Category.query.filter_by(slug='orchids').first()
-            
-            sample_products = [
-                Product(name='Красные розы', description='Букет из 25 красных роз', price=50, stock=20, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400', is_visible=True, is_featured=True),
-                Product(name='Белые лилии', description='Элегантный букет белых лилий', price=35, stock=15, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400', is_visible=True, is_featured=True),
-                Product(name='Тюльпаны микс', description='Яркий букет разноцветных тюльпанов', price=30, stock=30, category='tulips', category_id=tulips_cat.id if tulips_cat else None, image_url='https://images.unsplash.com/photo-1520763185298-1b434c919102?w=400', is_visible=True),
-                Product(name='Пионы', description='Нежные розовые пионы', price=60, stock=10, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1588017341958-ce36aa0fb6d3?w=400', is_visible=True, is_featured=True),
-                Product(name='Орхидеи', description='Экзотические орхидеи', price=90, stock=8, category='orchids', category_id=orchids_cat.id if orchids_cat else None, image_url='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', is_visible=True),
-                Product(name='Хризантемы', description='Осенние хризантемы', price=25, stock=25, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400', is_visible=True)
-            ]
-            for product in sample_products:
-                db.session.add(product)
-            db.session.commit()
-            print("Добавлены тестовые товары")
+                tulips_cat = Category.query.filter_by(slug='tulips').first()
+                orchids_cat = Category.query.filter_by(slug='orchids').first()
+                
+                sample_products = [
+                    Product(name='Красные розы', description='Букет из 25 красных роз', price=50, stock=20, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400', is_visible=True, is_featured=True),
+                    Product(name='Белые лилии', description='Элегантный букет белых лилий', price=35, stock=15, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400', is_visible=True, is_featured=True),
+                    Product(name='Тюльпаны микс', description='Яркий букет разноцветных тюльпанов', price=30, stock=30, category='tulips', category_id=tulips_cat.id if tulips_cat else None, image_url='https://images.unsplash.com/photo-1520763185298-1b434c919102?w=400', is_visible=True),
+                    Product(name='Пионы', description='Нежные розовые пионы', price=60, stock=10, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1588017341958-ce36aa0fb6d3?w=400', is_visible=True, is_featured=True),
+                    Product(name='Орхидеи', description='Экзотические орхидеи', price=90, stock=8, category='orchids', category_id=orchids_cat.id if orchids_cat else None, image_url='https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', is_visible=True),
+                    Product(name='Хризантемы', description='Осенние хризантемы', price=25, stock=25, category='roses', category_id=roses_cat.id if roses_cat else None, image_url='https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400', is_visible=True)
+                ]
+                for product in sample_products:
+                    db.session.add(product)
+                db.session.commit()
+                print("Добавлены тестовые товары")
             
         except Exception as e:
             print(f"Database initialization error: {e}")
